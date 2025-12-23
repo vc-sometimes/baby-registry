@@ -10,7 +10,7 @@ import Registries from './components/Registries'
 import GenderVote from './components/GenderVote'
 import BabyMessages from './components/BabyMessages'
 import Footer from './components/Footer'
-import RainbowCursor from './components/RainbowCursor'
+import FluidCursor from './components/FluidCursor'
 import './App.css'
 
 function App() {
@@ -66,7 +66,7 @@ function App() {
   return (
     <LanguageProvider>
       <div className="app">
-        <RainbowCursor />
+        <FluidCursor />
         <Header />
         <Hero />
         <OurStory />

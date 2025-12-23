@@ -1,61 +1,155 @@
 .rainbow-cursor {
   position: fixed;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  background: conic-gradient(
-    from 0deg,
-    #ff0000,
-    #ff7f00,
-    #ffff00,
-    #00ff00,
-    #0000ff,
-    #4b0082,
-    #9400d3,
-    #ff0000
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+}
+
+.cursor-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, 
+    hsl(calc(var(--time) * 100), 100%, 60%) 0%,
+    hsl(calc(var(--time) * 100 + 60), 100%, 50%) 50%,
+    hsl(calc(var(--time) * 100 + 120), 100%, 40%) 100%
   );
-  animation: rainbowRotate 2s linear infinite;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-  mix-blend-mode: screen;
+  animation: pulseCore 1s ease-in-out infinite;
+  box-shadow: 
+    0 0 20px hsl(calc(var(--time) * 100), 100%, 60%),
+    0 0 40px hsl(calc(var(--time) * 100 + 60), 100%, 50%),
+    0 0 60px hsl(calc(var(--time) * 100 + 120), 100%, 40%);
+}
+
+.cursor-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 2px solid;
+  transform: translate(-50%, -50%);
+  animation: rotateRing 2s linear infinite;
+}
+
+.cursor-ring.ring-1 {
+  width: 20px;
+  height: 20px;
+  border-color: hsl(calc(var(--time) * 100), 100%, 60%);
+  box-shadow: 0 0 10px hsl(calc(var(--time) * 100), 100%, 60%);
+  animation-duration: 1.5s;
+}
+
+.cursor-ring.ring-2 {
+  width: 28px;
+  height: 28px;
+  border-color: hsl(calc(var(--time) * 100 + 120), 100%, 60%);
+  box-shadow: 0 0 15px hsl(calc(var(--time) * 100 + 120), 100%, 60%);
+  animation-duration: 2s;
+  animation-direction: reverse;
+}
+
+.cursor-ring.ring-3 {
+  width: 36px;
+  height: 36px;
+  border-color: hsl(calc(var(--time) * 100 + 240), 100%, 60%);
+  box-shadow: 0 0 20px hsl(calc(var(--time) * 100 + 240), 100%, 60%);
+  animation-duration: 2.5s;
+}
+
+.wave-effect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 1px solid;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  animation: waveExpand 2s ease-out infinite;
+}
+
+.wave-effect.wave-1 {
+  width: 20px;
+  height: 20px;
+  border-color: hsl(calc(var(--time) * 100), 100%, 60%);
+  animation-delay: 0s;
+}
+
+.wave-effect.wave-2 {
+  width: 20px;
+  height: 20px;
+  border-color: hsl(calc(var(--time) * 100 + 120), 100%, 60%);
+  animation-delay: 0.66s;
+}
+
+.wave-effect.wave-3 {
+  width: 20px;
+  height: 20px;
+  border-color: hsl(calc(var(--time) * 100 + 240), 100%, 60%);
+  animation-delay: 1.33s;
 }
 
 .rainbow-trail-dot {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 9998;
   transform: translate(-50%, -50%);
-  background: conic-gradient(
-    from 0deg,
-    #ff0000,
-    #ff7f00,
-    #ffff00,
-    #00ff00,
-    #0000ff,
-    #4b0082,
-    #9400d3,
-    #ff0000
+  background: radial-gradient(
+    circle,
+    hsl(calc(var(--trail-time) * 100), 100%, 70%) 0%,
+    hsl(calc(var(--trail-time) * 100 + 60), 100%, 50%) 100%
   );
-  animation: rainbowRotate 1s linear infinite, fadeOut 0.5s ease-out forwards;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  box-shadow: 
+    0 0 8px hsl(calc(var(--trail-time) * 100), 100%, 60%),
+    0 0 16px hsl(calc(var(--trail-time) * 100 + 120), 100%, 50%);
+  animation: trailFade 0.6s ease-out forwards;
 }
 
-@keyframes rainbowRotate {
+@keyframes pulseCore {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes rotateRing {
   0% {
-    filter: hue-rotate(0deg);
+    transform: translate(-50%, -50%) rotate(0deg);
   }
   100% {
-    filter: hue-rotate(360deg);
+    transform: translate(-50%, -50%) rotate(360deg);
   }
 }
 
-@keyframes fadeOut {
-  to {
+@keyframes waveExpand {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+@keyframes trailFade {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
     opacity: 0;
   }
 }

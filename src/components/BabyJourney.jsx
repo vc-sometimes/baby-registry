@@ -53,7 +53,7 @@ function BabyJourney() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            every moment of this journey has been a gift. we can't wait to welcome our little one into this world.
+            this baby won't stop kicking me
           </motion.blockquote>
           <motion.p 
             className="quote-attribution"

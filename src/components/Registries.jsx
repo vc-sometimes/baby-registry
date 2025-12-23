@@ -133,7 +133,6 @@ function Registries() {
               <div className="card-content">
                 <h3 className="registry-name">{registry.name}</h3>
               </div>
-              <div className="card-background-shine"></div>
             </motion.a>
             )
           })}

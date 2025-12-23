@@ -62,7 +62,7 @@ function BabyJourney() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            — from us
+            brisa
           </motion.p>
         </motion.div>
       </div>

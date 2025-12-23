@@ -1,0 +1,62 @@
+:root {
+  --bg-primary: #FAF8F5;
+  --bg-secondary: #F5F1EB;
+  --bg-tertiary: #F0EBE0;
+  --bg-card: #FAF8F5;
+  --text-primary: #3E2723;
+  --text-secondary: #5D4037;
+  --border-color: #8B6F47;
+  --accent-color: #C97D60;
+  --footer-bg: #A08B7A;
+}
+
+.dark {
+  --bg-primary: #2C2418;
+  --bg-secondary: #1F1812;
+  --bg-tertiary: #1A1410;
+  --bg-card: #3E2723;
+  --text-primary: #F0EBE0;
+  --text-secondary: #D7CCC8;
+  --border-color: #8B6F47;
+  --accent-color: #C97D60;
+  --footer-bg: #5D4037;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body {
+  font-family: 'Crimson Text', serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+

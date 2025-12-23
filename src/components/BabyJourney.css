@@ -1,0 +1,141 @@
+.baby-journey {
+  position: relative;
+  border-bottom: 1px solid #8B6F47;
+  min-height: 100vh;
+  padding: 120px 64px;
+  background: #FAF8F5;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.journey-background {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  background: linear-gradient(135deg, #F5F1EB 0%, #FAF8F5 50%, #F0EBE0 100%);
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(139, 111, 71, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 111, 71, 0.02) 0%, transparent 50%);
+  will-change: transform;
+  z-index: 0;
+}
+
+.journey-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 80px;
+}
+
+.journey-image-wrapper {
+  width: 100%;
+  max-width: 800px;
+  perspective: 1000px;
+}
+
+.journey-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, #D7CCC8 0%, #BCAAA4 100%);
+  border-radius: 2px;
+  border: 1px solid #8B6F47;
+  overflow: hidden;
+  will-change: transform;
+  position: relative;
+}
+
+.journey-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  filter: grayscale(100%) sepia(50%) hue-rotate(10deg) saturate(0.7) contrast(0.95) brightness(0.88);
+}
+
+.journey-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 70% 70%, rgba(0, 0, 0, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.journey-quote {
+  max-width: 700px;
+  text-align: center;
+}
+
+.quote-text {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-style: italic;
+  line-height: 1.8;
+  color: #3E2723;
+  letter-spacing: 0.2px;
+  margin: 0 0 24px 0;
+  position: relative;
+  padding: 32px;
+  border-left: 3px solid #8B6F47;
+  background: #F5F1EB;
+  border-radius: 2px;
+}
+
+.quote-text::before {
+  content: '"';
+  font-size: 1.5em;
+  color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  left: 28px;
+  top: 28px;
+  line-height: 1;
+}
+
+.quote-text::after {
+  content: '"';
+  font-size: 1.5em;
+  color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  line-height: 1;
+}
+
+.quote-attribution {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(18px, 2vw, 20px);
+  color: #5D4037;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .baby-journey {
+    padding: 80px 32px;
+  }
+  
+  .journey-content {
+    gap: 48px;
+  }
+  
+  .journey-image {
+    aspect-ratio: 3 / 2;
+  }
+}
+

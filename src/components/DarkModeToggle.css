@@ -1,0 +1,39 @@
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+}
+
+.toggle-track {
+  width: 56px;
+  height: 32px;
+  border-radius: 16px;
+  position: relative;
+  border: 1px solid rgba(139, 111, 71, 0.3);
+  transition: border-color 0.3s ease;
+}
+
+.dark-mode-toggle:hover .toggle-track {
+  border-color: #8B6F47;
+}
+
+.toggle-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.dark .toggle-thumb {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+

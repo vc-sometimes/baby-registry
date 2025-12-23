@@ -1,0 +1,57 @@
+.footer {
+  padding: 80px 64px;
+  background: #A08B7A;
+  color: #FAF8F5;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footer-text {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(20px, 2.5vw, 24px);
+  line-height: 1.8;
+  color: #FAF8F5;
+  margin: 0 0 32px 0;
+}
+
+.footer-names {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.footer-divider {
+  width: 60px;
+  height: 1px;
+  background: rgba(201, 125, 96, 0.5);
+  margin: 0 auto 32px;
+}
+
+.footer-year {
+  font-family: 'Crimson Text', serif;
+  font-size: 16px;
+  color: rgba(250, 248, 245, 0.6);
+  margin: 0;
+  letter-spacing: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.footer-birth-year {
+  font-size: 18px;
+  color: rgba(250, 248, 245, 0.8);
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 60px 32px;
+  }
+}
+

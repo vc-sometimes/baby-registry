@@ -1,0 +1,208 @@
+.drawable-image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.drawable-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  z-index: 2;
+}
+
+.drawing-hint {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(250, 248, 245, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid #8B6F47;
+  border-radius: 2px;
+  padding: 8px 16px;
+  z-index: 3;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: #3E2723;
+  pointer-events: none;
+  animation: fadeInOut 3s ease-in-out infinite;
+}
+
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.drawing-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(250, 248, 245, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid #8B6F47;
+  border-radius: 2px;
+  padding: 16px 24px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 300px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.color-picker {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.color-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  position: relative;
+}
+
+.color-button:hover {
+  transform: scale(1.1);
+}
+
+.color-button.active {
+  border-color: #3E2723;
+  transform: scale(1.15);
+}
+
+.color-button.active::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.brush-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brush-controls label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: #3E2723;
+  width: 100%;
+}
+
+.brush-controls input[type="range"] {
+  flex: 1;
+  height: 4px;
+  background: #E8DFD0;
+  border-radius: 2px;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.brush-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #8B6F47;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #FAF8F5;
+}
+
+.brush-controls input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #8B6F47;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #FAF8F5;
+}
+
+.brush-size-value {
+  font-weight: 600;
+  min-width: 40px;
+  text-align: right;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.clear-button,
+.download-button {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #8B6F47;
+  background: #FAF8F5;
+  color: #3E2723;
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-button:hover,
+.download-button:hover {
+  background: #8B6F47;
+  color: white;
+}
+
+.download-button {
+  background: #C97D60;
+  color: white;
+  border-color: #C97D60;
+}
+
+.download-button:hover {
+  background: #B86A4F;
+}
+
+@media (max-width: 768px) {
+  .drawing-controls {
+    min-width: auto;
+    width: calc(100% - 32px);
+    left: 16px;
+    transform: none;
+    padding: 12px 16px;
+  }
+  
+  .color-button {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .brush-controls label {
+    font-size: 12px;
+  }
+}
+

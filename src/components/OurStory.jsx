@@ -61,18 +61,13 @@ function OurStory() {
             variants={containerVariants}
           >
             <motion.p className="story-intro" variants={textVariants}>
-              every great story begins with a moment. ours started with a simple hello, 
-              a shared laugh, and the kind of connection that makes everything else fade away.
+              it sounds cliche but we fell in love at first sight (shoutout hinge). we knew from day one that we wanted to be in each others lives, and on our second date we were already talking about how many kids we'd have and what we would name them.
             </motion.p>
             <motion.p className="story-details" variants={textVariants}>
-              through seasons of growth, adventures big and small, and countless moments 
-              of choosing each other, we've built something beautiful together. now, 
-              we're embarking on our greatest adventure yet—welcoming our little one 
-              into this world.
+              little did we know that a little surprise was awaiting us only four months later!! while we were both shocked, we couldn't have been happier about our little buba.
             </motion.p>
             <motion.p className="story-closing" variants={textVariants}>
-              this registry is more than a list of things; it's a collection of hopes, 
-              dreams, and the love we can't wait to share.
+              buba comes from baba, russian for baby, but brisa didn't want to call our baby that because it's also spanish for saliva. so she changed a letter and now baby is not drool baby is cool.
             </motion.p>
           </motion.div>
         </div>

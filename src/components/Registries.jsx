@@ -29,7 +29,7 @@ function Registries() {
     {
       name: 'target',
       description: 'essentials and everyday items',
-      url: 'https://www.target.com/gift-registry/gift/',
+      url: 'https://www.target.com/gift-registry/gift/buba',
       color: '#CC0000',
       logo: 'https://cdn.simpleicons.org/target/CC0000',
     },

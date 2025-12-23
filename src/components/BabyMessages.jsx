@@ -234,7 +234,7 @@ function BabyMessages() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          share your love, wishes, and advice for our little one. we'll collect all your messages and put them in a book for baby to treasure forever.
+          we're going to compile these into a book for buba, so write something kind, something funny, or just some words of wisdom for the little one
         </motion.p>
 
         {!hasMessage ? (

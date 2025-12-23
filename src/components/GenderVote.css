@@ -222,6 +222,14 @@
   font-weight: 600;
 }
 
+.no-votes-yet {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(16px, 1.8vw, 18px);
+  color: #5D4037;
+  margin-top: 24px;
+  font-style: italic;
+}
+
 .vote-loading {
   font-family: 'Crimson Text', serif;
   font-size: clamp(18px, 2vw, 20px);

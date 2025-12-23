@@ -17,6 +17,7 @@ function BabyMessages() {
   const [loading, setLoading] = useState(true)
   const [clearing, setClearing] = useState(false)
   const submitRef = useRef(false)
+  const lastSubmitTimeRef = useRef(0)
 
   useEffect(() => {
     fetchMessages()
@@ -70,31 +71,48 @@ function BabyMessages() {
     e.preventDefault()
     e.stopPropagation() // Prevent event bubbling
     
+    const now = Date.now()
+    const timeSinceLastSubmit = now - lastSubmitTimeRef.current
+    
+    // Prevent submissions within 2 seconds of each other
+    if (timeSinceLastSubmit < 2000) {
+      console.log(`[MESSAGES] Submission blocked - too soon (${timeSinceLastSubmit}ms ago)`)
+      return
+    }
+    
     if (!name.trim() || !message.trim() || submitting || submitRef.current) {
       return
     }
 
-    // Prevent double submission
+    // Set lock immediately
+    lastSubmitTimeRef.current = now
     submitRef.current = true
     setSubmitting(true)
 
     // Store the values before clearing to prevent race conditions
     const nameValue = name.trim()
     const messageValue = message.trim()
+    
+    // Create a unique submission ID for this request
+    const submissionId = `${now}_${Math.random().toString(36).substring(2, 9)}`
 
     try {
-      console.log(`[MESSAGES] Submitting message from: ${nameValue}`)
+      console.log(`[MESSAGES] Submitting message from: ${nameValue} [ID: ${submissionId}]`)
       const response = await fetch(`${API_BASE}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: nameValue, message: messageValue }),
+        body: JSON.stringify({ 
+          name: nameValue, 
+          message: messageValue,
+          submissionId: submissionId // Include submission ID for tracking
+        }),
       })
 
       if (response.ok) {
         const data = await response.json()
-        console.log(`[MESSAGES] Message submitted successfully: ${data.message?.id}`)
+        console.log(`[MESSAGES] Message submitted successfully: ${data.message?.id} [Submission ID: ${submissionId}]`)
         // Clear form immediately
         setName('')
         setMessage('')
@@ -102,7 +120,13 @@ function BabyMessages() {
         await fetchMessages()
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert(errorData.error || 'Failed to submit message. Please try again.')
+        // If it's a duplicate error, don't show alert, just refresh
+        if (errorData.error && errorData.error.includes('Duplicate')) {
+          console.log(`[MESSAGES] Duplicate detected, refreshing messages`)
+          await fetchMessages()
+        } else {
+          alert(errorData.error || 'Failed to submit message. Please try again.')
+        }
       }
     } catch (error) {
       console.error('Error submitting message:', error)
@@ -112,11 +136,11 @@ function BabyMessages() {
         alert(`Failed to submit message: ${error.message || 'Unknown error'}. Please check your connection and try again.`)
       }
     } finally {
-      // Add a small delay before allowing another submission
+      // Add a delay before allowing another submission
       setTimeout(() => {
         setSubmitting(false)
         submitRef.current = false
-      }, 500)
+      }, 1000)
     }
   }
 
@@ -222,6 +246,12 @@ function BabyMessages() {
             type="submit"
             className="submit-button"
             disabled={submitting || submitRef.current || !name.trim() || !message.trim()}
+            onClick={(e) => {
+              // Disable button immediately on click
+              if (!submitting && !submitRef.current && name.trim() && message.trim()) {
+                e.currentTarget.disabled = true
+              }
+            }}
             whileHover={!submitting && !submitRef.current ? { scale: 1.02, y: -2 } : {}}
             whileTap={!submitting && !submitRef.current ? { scale: 0.98 } : {}}
           >

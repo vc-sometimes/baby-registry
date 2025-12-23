@@ -301,7 +301,7 @@ app.get('/api/messages', (req, res) => {
 // Submit a message
 app.post('/api/messages', (req, res) => {
   try {
-    const { name, message } = req.body
+    const { name, message, submissionId } = req.body
     
     if (!name || !message) {
       return res.status(400).json({ error: 'Name and message are required' })
@@ -319,33 +319,46 @@ app.post('/api/messages', (req, res) => {
     const now = Date.now()
     const timestamp = new Date().toISOString()
 
-    // Check for duplicate messages within the last 5 seconds (same name and message)
+    // Check for duplicate messages within the last 10 seconds (same name and message)
     const recentDuplicate = messages.find(msg => {
       const msgTime = new Date(msg.timestamp).getTime()
       const timeDiff = now - msgTime
       return (
         msg.name === nameTrimmed &&
         msg.message === messageTrimmed &&
-        timeDiff < 5000 // 5 seconds
+        timeDiff < 10000 // 10 seconds
       )
     })
 
     if (recentDuplicate) {
-      console.log(`[MESSAGES] Duplicate message detected from ${nameTrimmed} within 5 seconds`)
+      console.log(`[MESSAGES] Duplicate message detected from ${nameTrimmed} within 10 seconds [Submission ID: ${submissionId || 'none'}]`)
       return res.status(400).json({ 
         error: 'Duplicate message detected. Please wait a moment before submitting again.',
         message: recentDuplicate
       })
     }
 
+    // Also check if we just processed this exact submission ID (in case of network retries)
+    if (submissionId) {
+      const existingBySubmissionId = messages.find(msg => msg.submissionId === submissionId)
+      if (existingBySubmissionId) {
+        console.log(`[MESSAGES] Message with submission ID ${submissionId} already exists`)
+        return res.json({
+          success: true,
+          message: existingBySubmissionId
+        })
+      }
+    }
+
     const newMessage = {
       id: `${now}_${Math.random().toString(36).substring(2, 15)}`, // More unique ID
       name: nameTrimmed,
       message: messageTrimmed,
-      timestamp: timestamp
+      timestamp: timestamp,
+      submissionId: submissionId || null // Store submission ID if provided
     }
 
-    console.log(`[MESSAGES] Adding new message from ${nameTrimmed}, total messages: ${messages.length + 1}`)
+    console.log(`[MESSAGES] Adding new message from ${nameTrimmed} [Submission ID: ${submissionId || 'none'}], total messages: ${messages.length + 1}`)
     messages.push(newMessage)
     writeMessages({ messages })
 

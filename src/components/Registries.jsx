@@ -36,7 +36,7 @@ function Registries() {
     {
       name: 'amazon',
       description: 'wide selection of baby gear',
-      url: '#',
+      url: 'https://www.amazon.com/baby-reg/brisashtefec-kuszmiruk-vc-billingsley-abril-2026-sanfrancisco/9JTZQ714LCUW?ref_=cm_sw_r_apann_dp_ZDV387R24FXZGZMHW1B9&language=en-US',
       color: '#FF9900',
       logo: 'https://cdn.simpleicons.org/amazon/FF9900',
     },

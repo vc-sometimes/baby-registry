@@ -312,17 +312,46 @@ app.post('/api/messages', (req, res) => {
     }
 
     const data = readMessages()
-    const messages = data.messages || []
+    const messages = Array.isArray(data.messages) ? [...data.messages] : []
 
-    const newMessage = {
-      id: Date.now().toString(),
-      name: name.trim(),
-      message: message.trim(),
-      timestamp: new Date().toISOString()
+    const nameTrimmed = name.trim()
+    const messageTrimmed = message.trim()
+    const now = Date.now()
+    const timestamp = new Date().toISOString()
+
+    // Check for duplicate messages within the last 5 seconds (same name and message)
+    const recentDuplicate = messages.find(msg => {
+      const msgTime = new Date(msg.timestamp).getTime()
+      const timeDiff = now - msgTime
+      return (
+        msg.name === nameTrimmed &&
+        msg.message === messageTrimmed &&
+        timeDiff < 5000 // 5 seconds
+      )
+    })
+
+    if (recentDuplicate) {
+      console.log(`[MESSAGES] Duplicate message detected from ${nameTrimmed} within 5 seconds`)
+      return res.status(400).json({ 
+        error: 'Duplicate message detected. Please wait a moment before submitting again.',
+        message: recentDuplicate
+      })
     }
 
+    const newMessage = {
+      id: `${now}_${Math.random().toString(36).substring(2, 15)}`, // More unique ID
+      name: nameTrimmed,
+      message: messageTrimmed,
+      timestamp: timestamp
+    }
+
+    console.log(`[MESSAGES] Adding new message from ${nameTrimmed}, total messages: ${messages.length + 1}`)
     messages.push(newMessage)
     writeMessages({ messages })
+
+    // Verify the write
+    const verifyData = readMessages()
+    console.log(`[MESSAGES] Verified write. Messages in file: ${verifyData.messages?.length || 0}`)
 
     res.json({
       success: true,

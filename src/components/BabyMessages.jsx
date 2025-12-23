@@ -68,27 +68,38 @@ function BabyMessages() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!name.trim() || !message.trim() || submitting || submitRef.current) return
+    e.stopPropagation() // Prevent event bubbling
+    
+    if (!name.trim() || !message.trim() || submitting || submitRef.current) {
+      return
+    }
 
     // Prevent double submission
     submitRef.current = true
     setSubmitting(true)
 
+    // Store the values before clearing to prevent race conditions
+    const nameValue = name.trim()
+    const messageValue = message.trim()
+
     try {
+      console.log(`[MESSAGES] Submitting message from: ${nameValue}`)
       const response = await fetch(`${API_BASE}/api/messages`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name: name.trim(), message: message.trim() }),
+        body: JSON.stringify({ name: nameValue, message: messageValue }),
       })
 
       if (response.ok) {
         const data = await response.json()
-        // Refresh messages from server to ensure consistency
-        await fetchMessages()
+        console.log(`[MESSAGES] Message submitted successfully: ${data.message?.id}`)
+        // Clear form immediately
         setName('')
         setMessage('')
+        // Refresh messages from server to ensure consistency
+        await fetchMessages()
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         alert(errorData.error || 'Failed to submit message. Please try again.')
@@ -101,8 +112,11 @@ function BabyMessages() {
         alert(`Failed to submit message: ${error.message || 'Unknown error'}. Please check your connection and try again.`)
       }
     } finally {
-      setSubmitting(false)
-      submitRef.current = false
+      // Add a small delay before allowing another submission
+      setTimeout(() => {
+        setSubmitting(false)
+        submitRef.current = false
+      }, 500)
     }
   }
 

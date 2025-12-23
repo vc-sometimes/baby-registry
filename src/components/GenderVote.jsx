@@ -79,6 +79,7 @@ function GenderVote() {
 
     try {
       const browserId = getBrowserId()
+      console.log(`[FRONTEND] Submitting vote: ${vote} with browserId: ${browserId}`)
       const response = await fetch(`${API_BASE}/api/votes`, {
         method: 'POST',
         headers: {

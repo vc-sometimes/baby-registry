@@ -45,8 +45,19 @@ initMessagesFile()
 // Helper functions
 const readVotes = () => {
   try {
+    if (!existsSync(VOTES_FILE)) {
+      return { votes: [] }
+    }
     const data = readFileSync(VOTES_FILE, 'utf8')
-    return JSON.parse(data)
+    const parsed = JSON.parse(data)
+    // Ensure votes is always an array
+    if (!parsed || typeof parsed !== 'object') {
+      return { votes: [] }
+    }
+    if (!Array.isArray(parsed.votes)) {
+      return { votes: [] }
+    }
+    return parsed
   } catch (error) {
     console.error('Error reading votes:', error)
     return { votes: [] }
@@ -136,12 +147,18 @@ app.post('/api/votes', (req, res) => {
     // Get user IP (for reference, but browserId is primary identifier)
     const userIp = getUserIp(req)
 
+    // Read current votes
     const data = readVotes()
-    const votes = data.votes || []
+    const votes = Array.isArray(data.votes) ? [...data.votes] : [] // Create a copy to ensure we're working with an array
+
+    console.log(`[VOTE] Received vote: ${voteType} from browserId: ${browserId}`)
+    console.log(`[VOTE] Current total votes before: ${votes.length}`)
 
     // Check if this browser has already voted (using browserId as primary identifier)
-    const existingVote = votes.find(v => v.browserId === browserId)
-    if (existingVote) {
+    const existingVoteIndex = votes.findIndex(v => v.browserId === browserId)
+    if (existingVoteIndex !== -1) {
+      const existingVote = votes[existingVoteIndex]
+      console.log(`[VOTE] Browser ${browserId} already voted: ${existingVote.voteType}`)
       return res.status(400).json({ 
         error: 'You have already voted',
         boy: votes.filter(v => v.voteType === 'boy').length,
@@ -151,25 +168,36 @@ app.post('/api/votes', (req, res) => {
       })
     }
 
-    // Add new vote
-    votes.push({
+    // Create new vote object with unique ID
+    const newVote = {
+      id: `vote_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`, // Unique vote ID
       voteType,
       browserId,
       userIp, // Store IP for reference
       createdAt: new Date().toISOString()
-    })
+    }
 
+    // Add new vote to the array
+    votes.push(newVote)
+    console.log(`[VOTE] Added new vote. Total votes after: ${votes.length}`)
+
+    // Write votes back to file
     writeVotes({ votes })
 
+    // Verify the write by reading back
+    const verifyData = readVotes()
+    const verifyVotes = verifyData.votes || []
+    console.log(`[VOTE] Verified write. Votes in file: ${verifyVotes.length}`)
+
     // Get updated counts
-    const boyVotes = votes.filter(v => v.voteType === 'boy').length
-    const girlVotes = votes.filter(v => v.voteType === 'girl').length
+    const boyVotes = verifyVotes.filter(v => v.voteType === 'boy').length
+    const girlVotes = verifyVotes.filter(v => v.voteType === 'girl').length
 
     res.json({
       success: true,
       boy: boyVotes,
       girl: girlVotes,
-      total: votes.length
+      total: verifyVotes.length
     })
   } catch (error) {
     console.error('Error submitting vote:', error)

@@ -50,7 +50,7 @@
 
 .hero-title h1 {
   font-family: 'Crimson Text', serif;
-  font-size: clamp(80px, 15vw, 180px);
+  font-size: clamp(48px, 12vw, 180px);
   font-weight: normal;
   line-height: 1;
   color: var(--text-primary);
@@ -63,6 +63,14 @@
   transition: transform 0.1s ease-out;
   position: relative;
   z-index: 2;
+  white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+  .hero-title h1 {
+    white-space: normal;
+    font-size: clamp(42px, 10vw, 100px);
+  }
 }
 
 .hero-title h1::after {
@@ -281,6 +289,10 @@
   .hero-title h1 {
     font-size: clamp(48px, 12vw, 80px);
     line-height: 1.1;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    overflow-wrap: break-word;
   }
   
   .hero-content {
@@ -325,7 +337,13 @@
   }
   
   .hero-title h1 {
-    font-size: clamp(40px, 15vw, 60px);
+    font-size: clamp(36px, 10vw, 50px);
+    line-height: 1.1;
+    word-break: break-word;
+    hyphens: auto;
+    max-width: 100%;
+    overflow-wrap: break-word;
+    letter-spacing: -0.3px;
   }
   
   .hero-title {

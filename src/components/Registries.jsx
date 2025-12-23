@@ -29,7 +29,7 @@ function Registries() {
     {
       name: 'target',
       description: 'essentials and everyday items',
-      url: '#',
+      url: 'https://www.target.com/gift-registry/gift/',
       color: '#CC0000',
       logo: 'https://cdn.simpleicons.org/target/CC0000',
     },
@@ -43,7 +43,7 @@ function Registries() {
     {
       name: 'babylist',
       description: 'universal baby registry',
-      url: '#',
+      url: 'https://my.babylist.com/brisa-shtefec-kuszmiruk',
       color: '#0066CC',
       logo: 'https://www.babylist.com/favicon-32x32.png',
     },

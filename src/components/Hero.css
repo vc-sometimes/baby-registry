@@ -287,12 +287,12 @@
   }
   
   .hero-title h1 {
-    font-size: clamp(48px, 12vw, 80px);
+    font-size: clamp(36px, 8vw, 60px);
     line-height: 1.1;
-    word-break: break-word;
-    hyphens: auto;
+    white-space: nowrap;
+    letter-spacing: -1px;
     max-width: 100%;
-    overflow-wrap: break-word;
+    overflow: hidden;
   }
   
   .hero-content {
@@ -337,13 +337,12 @@
   }
   
   .hero-title h1 {
-    font-size: clamp(36px, 10vw, 50px);
+    font-size: clamp(32px, 7vw, 45px);
     line-height: 1.1;
-    word-break: break-word;
-    hyphens: auto;
+    white-space: nowrap;
+    letter-spacing: -1px;
     max-width: 100%;
-    overflow-wrap: break-word;
-    letter-spacing: -0.3px;
+    overflow: hidden;
   }
   
   .hero-title {

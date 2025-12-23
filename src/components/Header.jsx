@@ -71,15 +71,19 @@ function Header() {
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
     >
       <div className="header-container">
-        <motion.p 
+        <motion.div 
           className="logo" 
           onClick={handleLogoClick} 
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          buba
-        </motion.p>
+          <img 
+            src="/images/cr-i-panda.svg" 
+            alt="Buba" 
+            style={{ width: '24px', height: '24px' }}
+          />
+        </motion.div>
         
         {/* Desktop Navigation */}
         <nav className="nav desktop-nav">

@@ -34,15 +34,16 @@
 }
 
 .logo {
-  font-family: 'Crimson Text', serif;
-  font-size: clamp(20px, 2.5vw, 24px);
-  line-height: 1.5;
-  color: var(--text-primary);
-  letter-spacing: -0.25px;
+  display: flex;
+  align-items: center;
   margin: 0;
-  transition: color 0.3s ease;
-  white-space: nowrap;
   flex-shrink: 0;
+}
+
+.logo img {
+  width: 24px;
+  height: 24px;
+  display: block;
 }
 
 .nav {

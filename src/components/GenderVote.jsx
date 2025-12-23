@@ -31,17 +31,15 @@ function GenderVote() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [clearing, setClearing] = useState(false)
-  const [allVotes, setAllVotes] = useState([])
 
   useEffect(() => {
     // Load votes and check if user has voted
     const fetchVotes = async () => {
       try {
         const browserId = getBrowserId()
-        const [votesResponse, checkResponse, allVotesResponse] = await Promise.all([
+        const [votesResponse, checkResponse] = await Promise.all([
           fetch(`${API_BASE}/api/votes`),
-          fetch(`${API_BASE}/api/votes/check?browserId=${encodeURIComponent(browserId)}`),
-          fetch(`${API_BASE}/api/votes/all`)
+          fetch(`${API_BASE}/api/votes/check?browserId=${encodeURIComponent(browserId)}`)
         ])
 
         if (votesResponse.ok) {
@@ -56,11 +54,6 @@ function GenderVote() {
             setHasVoted(true)
             setUserVote(checkData.voteType)
           }
-        }
-
-        if (allVotesResponse.ok) {
-          const allVotesData = await allVotesResponse.json()
-          setAllVotes(allVotesData.votes || [])
         }
       } catch (error) {
         console.error('Error fetching votes:', error)
@@ -94,12 +87,6 @@ function GenderVote() {
         setGirlVotes(data.girl)
         setUserVote(vote)
         setHasVoted(true)
-        // Refresh all votes
-        const allVotesResponse = await fetch(`${API_BASE}/api/votes/all`)
-        if (allVotesResponse.ok) {
-          const allVotesData = await allVotesResponse.json()
-          setAllVotes(allVotesData.votes || [])
-        }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         // If user already voted, update the counts but don't show error
@@ -145,12 +132,6 @@ function GenderVote() {
         setGirlVotes(data.girl)
         setUserVote(null)
         setHasVoted(false)
-        // Refresh all votes
-        const allVotesResponse = await fetch(`${API_BASE}/api/votes/all`)
-        if (allVotesResponse.ok) {
-          const allVotesData = await allVotesResponse.json()
-          setAllVotes(allVotesData.votes || [])
-        }
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
         if (response.status === 404) {
@@ -264,43 +245,6 @@ function GenderVote() {
           <p className="vote-thanks">
             thanks for voting! 🎉
           </p>
-        )}
-
-        {allVotes.length > 0 && (
-          <motion.div
-            className="all-votes-container"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-          >
-            <h3 className="all-votes-title">all votes</h3>
-            <div className="all-votes-list">
-              {allVotes.map((vote, index) => (
-                <motion.div
-                  key={index}
-                  className="vote-item"
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
-                >
-                  <span className={`vote-type ${vote.voteType}`}>
-                    {vote.voteType === 'boy' ? '👦🏽' : '👧🏽'} {vote.voteType}
-                  </span>
-                  <span className="vote-date">
-                    {new Date(vote.createdAt).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
         )}
       </div>
     </section>

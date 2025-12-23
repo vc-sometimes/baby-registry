@@ -36,6 +36,7 @@
 .logo {
   display: flex;
   align-items: center;
+  gap: 8px;
   margin: 0;
   flex-shrink: 0;
 }
@@ -44,6 +45,16 @@
   width: 24px;
   height: 24px;
   display: block;
+}
+
+.logo span {
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(20px, 2.5vw, 24px);
+  line-height: 1.5;
+  color: var(--text-primary);
+  letter-spacing: -0.25px;
+  transition: color 0.3s ease;
+  white-space: nowrap;
 }
 
 .nav {

@@ -74,7 +74,7 @@ function Header() {
         <motion.div 
           className="logo" 
           onClick={handleLogoClick} 
-          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+          style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -83,6 +83,7 @@ function Header() {
             alt="Buba" 
             style={{ width: '24px', height: '24px' }}
           />
+          <span>buba</span>
         </motion.div>
         
         {/* Desktop Navigation */}

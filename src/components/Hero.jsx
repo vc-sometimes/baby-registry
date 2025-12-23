@@ -29,13 +29,13 @@ function Hero() {
   const x = useSpring(mouseX, springConfig)
   const y = useSpring(mouseY, springConfig)
   
-  // 3D tilt transforms
-  const rotateX = useTransform(y, [-50, 50], [8, -8], { clamp: true })
-  const rotateY = useTransform(x, [-50, 50], [-8, 8], { clamp: true })
+  // 3D tilt transforms - reduced movement range
+  const rotateX = useTransform(y, [-20, 20], [3, -3], { clamp: true })
+  const rotateY = useTransform(x, [-20, 20], [-3, 3], { clamp: true })
   
   // Dynamic lighting based on rotation - light comes from opposite side of tilt
-  const lightX = useTransform(rotateY, [-8, 8], [80, 20])
-  const lightY = useTransform(rotateX, [-8, 8], [20, 80])
+  const lightX = useTransform(rotateY, [-3, 3], [80, 20])
+  const lightY = useTransform(rotateX, [-3, 3], [20, 80])
   
   // Shadow positions (opposite of light)
   const shadowX = useTransform(lightX, (x) => 100 - x)
@@ -52,8 +52,8 @@ function Hero() {
       const centerX = rect.left + rect.width / 2
       const centerY = rect.top + rect.height / 2
       
-      const moveX = (e.clientX - centerX) * 0.15
-      const moveY = (e.clientY - centerY) * 0.15
+      const moveX = (e.clientX - centerX) * 0.05
+      const moveY = (e.clientY - centerY) * 0.05
       
       mouseX.set(moveX)
       mouseY.set(moveY)

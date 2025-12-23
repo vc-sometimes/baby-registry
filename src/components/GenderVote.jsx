@@ -241,6 +241,16 @@ function VoteButtons({ userVote, hasVoted, submitting, handleVote }) {
   const [boyHovered, setBoyHovered] = useState(false)
   const [girlHovered, setGirlHovered] = useState(false)
 
+  // Reset button states when vote is cleared
+  useEffect(() => {
+    if (!hasVoted) {
+      setBoyMousePosition({ x: 0, y: 0 })
+      setGirlMousePosition({ x: 0, y: 0 })
+      setBoyHovered(false)
+      setGirlHovered(false)
+    }
+  }, [hasVoted])
+
   const handleBoyMouseMove = (e) => {
     if (hasVoted || submitting) return
     const button = e.currentTarget
@@ -292,39 +302,6 @@ function VoteButtons({ userVote, hasVoted, submitting, handleVote }) {
   const handleGirlMouseEnter = () => {
     if (!hasVoted && !submitting) {
       setGirlHovered(true)
-    }
-  }
-
-  const handleClearVotes = async () => {
-    if (!window.confirm('Are you sure you want to clear all votes? This cannot be undone.')) {
-      return
-    }
-
-    setClearing(true)
-
-    try {
-      const response = await fetch(`${API_BASE}/api/votes`, {
-        method: 'DELETE',
-      })
-
-      if (response.ok) {
-        setVotes({ boy: 0, girl: 0, total: 0 })
-        setUserVote(null)
-        // Clear localStorage as well
-        localStorage.removeItem('genderVote')
-      } else {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert(errorData.error || 'Failed to clear votes. Please try again.')
-      }
-    } catch (error) {
-      console.error('Error clearing votes:', error)
-      if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
-        alert('Cannot connect to server. Please make sure you\'re running "npm run dev" to start both servers.')
-      } else {
-        alert('Failed to clear votes. Please check your connection and try again.')
-      }
-    } finally {
-      setClearing(false)
     }
   }
 

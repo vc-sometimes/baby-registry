@@ -57,6 +57,7 @@
   letter-spacing: -0.5px;
   text-align: left;
   margin: 0;
+  margin-bottom: 0;
   width: 100%;
   will-change: transform;
   transition: transform 0.1s ease-out;
@@ -65,7 +66,13 @@
 }
 
 .hero-title h1::after {
-  display: none;
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 0;
+  width: 120px;
+  height: 2px;
+  background: var(--accent-color);
 }
 
 .hero-content {
@@ -75,6 +82,7 @@
   align-items: flex-start;
   overflow: visible;
   position: relative;
+  margin-top: 48px;
 }
 
 .hero-left {

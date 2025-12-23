@@ -21,12 +21,19 @@
   font-weight: 600;
   color: #3E2723;
   letter-spacing: -0.5px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   position: relative;
 }
 
 .section-title::after {
-  display: none;
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: #C97D60;
 }
 
 .vote-subtitle {
@@ -34,7 +41,8 @@
   font-size: clamp(18px, 2vw, 22px);
   line-height: 1.7;
   color: #5D4037;
-  margin: 48px 0 64px;
+  margin-top: 48px;
+  margin-bottom: 64px;
 }
 
 .vote-buttons {

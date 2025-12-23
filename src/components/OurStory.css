@@ -50,19 +50,27 @@
   color: #3E2723;
   letter-spacing: -0.5px;
   margin-top: 43px;
-  margin-bottom: 41px;
+  margin-bottom: 0;
   text-align: center;
   position: relative;
 }
 
 .section-title::after {
-  display: none;
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 2px;
+  background: #C97D60;
 }
 
 .story-body {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  margin-top: 48px;
 }
 
 .story-intro,

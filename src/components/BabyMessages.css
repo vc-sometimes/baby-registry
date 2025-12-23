@@ -32,7 +32,7 @@
   transform: translateX(-50%);
   width: 60px;
   height: 2px;
-  background: #C97D60;
+  background: var(--border-color);
 }
 
 .section-subtitle {

@@ -15,6 +15,9 @@ function Footer() {
           <span className="footer-birth-year">baby arriving 2026</span>
           <span className="footer-credit">front-end and back-end done by v.c.</span>
         </p>
+        <p className="footer-konami">
+          ↑ ↑ ↓ ↓ ← → ← → B A
+        </p>
       </div>
     </footer>
   )

@@ -58,6 +58,16 @@
   font-weight: 600;
 }
 
+.footer-konami {
+  font-family: 'Crimson Text', serif;
+  font-size: 14px;
+  color: rgba(250, 248, 245, 0.4);
+  margin-top: 24px;
+  letter-spacing: 4px;
+  user-select: none;
+  cursor: default;
+}
+
 @media (max-width: 768px) {
   .footer {
     padding: 50px 24px;

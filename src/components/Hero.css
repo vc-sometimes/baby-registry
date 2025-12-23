@@ -60,16 +60,24 @@
   margin-bottom: 0;
   width: 100%;
   will-change: transform;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.1s ease-out, font-size 0.3s ease;
   position: relative;
   z-index: 2;
   white-space: nowrap;
+}
+
+.hero-title h1.hero-title-spanish {
+  font-size: clamp(42px, 10vw, 160px);
 }
 
 @media (max-width: 1024px) {
   .hero-title h1 {
     white-space: normal;
     font-size: clamp(42px, 10vw, 100px);
+  }
+  
+  .hero-title h1.hero-title-spanish {
+    font-size: clamp(36px, 8.5vw, 90px);
   }
 }
 
@@ -295,6 +303,10 @@
     overflow: hidden;
   }
   
+  .hero-title h1.hero-title-spanish {
+    font-size: clamp(32px, 7vw, 54px);
+  }
+  
   .hero-content {
     gap: 32px;
   }
@@ -343,6 +355,10 @@
     letter-spacing: -1px;
     max-width: 100%;
     overflow: hidden;
+  }
+  
+  .hero-title h1.hero-title-spanish {
+    font-size: clamp(28px, 6vw, 40px);
   }
   
   .hero-title {

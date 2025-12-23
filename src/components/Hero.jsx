@@ -45,6 +45,7 @@ function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
+            className={language === 'es' ? 'hero-title-spanish' : ''}
           >
             {t.heroTitle}
           </motion.h1>

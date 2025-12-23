@@ -90,18 +90,51 @@
 
 @media (max-width: 768px) {
   .header-container {
-    padding: 16px clamp(16px, 4vw, 24px);
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  
+  .logo {
+    font-size: 20px;
+    margin-bottom: 0;
   }
   
   .nav {
-    gap: clamp(12px, 2vw, 20px);
+    gap: 16px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
   }
   
   .nav::-webkit-scrollbar {
     display: none;
+  }
+  
+  .nav-link {
+    font-size: 16px;
+    padding: 8px 4px;
+    min-width: fit-content;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container {
+    padding: 10px 12px;
+  }
+  
+  .logo {
+    font-size: 18px;
+  }
+  
+  .nav {
+    gap: 12px;
+  }
+  
+  .nav-link {
+    font-size: 14px;
+    padding: 6px 2px;
   }
 }
 

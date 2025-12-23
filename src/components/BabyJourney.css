@@ -127,15 +127,75 @@
 
 @media (max-width: 768px) {
   .baby-journey {
-    padding: 80px 32px;
+    padding: 60px 24px;
+    min-height: auto;
   }
   
   .journey-content {
-    gap: 48px;
+    gap: 40px;
+  }
+  
+  .journey-image-wrapper {
+    width: 100%;
   }
   
   .journey-image {
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 4 / 3;
+  }
+  
+  .journey-quote {
+    width: 100%;
+  }
+  
+  .quote-text {
+    font-size: clamp(20px, 4vw, 24px);
+    padding: 24px;
+    line-height: 1.6;
+  }
+  
+  .quote-text::before {
+    left: 20px;
+    top: 20px;
+  }
+  
+  .quote-text::after {
+    right: 20px;
+    bottom: 20px;
+  }
+  
+  .quote-attribution {
+    font-size: clamp(16px, 3vw, 18px);
+  }
+}
+
+@media (max-width: 480px) {
+  .baby-journey {
+    padding: 50px 16px;
+  }
+  
+  .journey-content {
+    gap: 32px;
+  }
+  
+  .quote-text {
+    font-size: 18px;
+    padding: 20px;
+  }
+  
+  .quote-text::before {
+    left: 16px;
+    top: 16px;
+    font-size: 1.2em;
+  }
+  
+  .quote-text::after {
+    right: 16px;
+    bottom: 16px;
+    font-size: 1.2em;
+  }
+  
+  .quote-attribution {
+    font-size: 15px;
   }
 }
 

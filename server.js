@@ -310,6 +310,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() })
 })
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ message: 'Baby Registry API Server', status: 'running' })
+})
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`)
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)

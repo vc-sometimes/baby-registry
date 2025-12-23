@@ -12,6 +12,7 @@ function Hero() {
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"])
   const imageY = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"])
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"])
 
   const handleRegistriesClick = (e) => {
     e.preventDefault()
@@ -66,7 +67,10 @@ function Hero() {
               />
             </motion.div>
           </div>
-          <div className="hero-right">
+          <motion.div 
+            className="hero-right"
+            style={{ y: textY }}
+          >
             <motion.h2 
               className="content-header"
               initial={{ opacity: 0 }}
@@ -94,7 +98,7 @@ function Hero() {
             >
               registries
             </motion.button>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

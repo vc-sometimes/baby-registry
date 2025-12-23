@@ -7,8 +7,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-x: hidden;
-  overflow-y: visible;
+  overflow: visible;
   background: var(--bg-primary);
   transition: background 0.3s ease, border-color 0.3s ease;
 }
@@ -81,12 +80,14 @@
   width: 100%;
   align-items: flex-start;
   overflow: visible;
+  position: relative;
 }
 
 .hero-left {
   flex-shrink: 0;
   width: clamp(300px, 45vw, 710px);
   max-width: 100%;
+  position: relative;
 }
 
 .image-placeholder {
@@ -135,7 +136,7 @@
   padding: 0;
   min-width: 0;
   max-width: 100%;
-  overflow: visible;
+  will-change: transform;
 }
 
 .content-header {
@@ -241,6 +242,8 @@
     align-items: flex-start;
     gap: 32px;
     padding: 0;
+    position: static;
+    top: auto;
   }
   
   .content-header {
@@ -255,37 +258,79 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 80px 32px;
+    padding: 60px 24px;
+    min-height: auto;
   }
   
   .hero-title {
-    margin-bottom: 48px;
+    margin-bottom: 32px;
+  }
+  
+  .hero-title h1 {
+    font-size: clamp(48px, 12vw, 80px);
+    line-height: 1.1;
   }
   
   .hero-content {
     gap: 32px;
   }
   
+  .hero-left {
+    width: 100%;
+  }
+  
   .image-placeholder {
     max-height: 400px;
+    aspect-ratio: 0.75;
   }
   
   .hero-right {
-    gap: 24px;
+    gap: 20px;
+    width: 100%;
   }
   
   .content-header {
-    font-size: clamp(24px, 5vw, 32px);
+    font-size: clamp(22px, 6vw, 28px);
+    padding-bottom: 10px;
   }
   
   .announcement {
-    font-size: clamp(18px, 3vw, 24px);
+    font-size: clamp(16px, 4vw, 20px);
+    line-height: 1.5;
   }
   
   .registries-button {
     width: 100%;
-    height: 72px;
-    font-size: clamp(18px, 3vw, 24px);
+    height: 56px;
+    font-size: clamp(16px, 4vw, 20px);
+    margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 50px 16px;
+  }
+  
+  .hero-title h1 {
+    font-size: clamp(40px, 15vw, 60px);
+  }
+  
+  .hero-title {
+    margin-bottom: 24px;
+  }
+  
+  .content-header {
+    font-size: 20px;
+  }
+  
+  .announcement {
+    font-size: 16px;
+  }
+  
+  .registries-button {
+    height: 52px;
+    font-size: 16px;
   }
 }
 

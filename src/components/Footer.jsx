@@ -13,6 +13,7 @@ function Footer() {
         <p className="footer-year">
           <span>2025</span>
           <span className="footer-birth-year">baby arriving 2026</span>
+          <span className="footer-credit">front-end and back-end done by v.c.</span>
         </p>
       </div>
     </footer>

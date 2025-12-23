@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import './BabyMessages.css'
 
-const API_BASE = import.meta.env.VITE_API_URL || ''
+// Normalize API base URL - remove trailing slash to prevent double slashes
+const getApiBase = () => {
+  const base = import.meta.env.VITE_API_URL || ''
+  return base.replace(/\/+$/, '') // Remove trailing slashes
+}
+const API_BASE = getApiBase()
 
 function BabyMessages() {
   const [messages, setMessages] = useState([])

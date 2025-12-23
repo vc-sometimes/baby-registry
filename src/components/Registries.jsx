@@ -110,14 +110,6 @@ function Registries() {
               setIsHovered(true)
             }
 
-            const handleClick = (e) => {
-              // Ensure navigation happens - open in new tab
-              if (registry.url && registry.url !== '#') {
-                e.preventDefault()
-                window.open(registry.url, '_blank', 'noopener,noreferrer')
-              }
-            }
-
             return (
               <motion.a
                 key={index}
@@ -127,7 +119,6 @@ function Registries() {
                 variants={itemVariants}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={handleClick}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}
                 onMouseEnter={handleMouseEnter}

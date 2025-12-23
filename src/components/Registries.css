@@ -59,7 +59,7 @@
   padding: 32px 36px;
   text-decoration: none;
   color: #3E2723;
-  overflow: hidden;
+  overflow: visible;
   transform-style: preserve-3d;
   transform-origin: center center;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
@@ -71,10 +71,12 @@
   cursor: pointer;
   pointer-events: auto;
   z-index: 1;
+  /* Ensure link is clickable */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .registry-card:hover {
-  transform: translateY(-4px);
+  /* Removed transform - handled by framer-motion */
   border-color: #8B6F47;
   border-width: 2px;
 }
@@ -110,6 +112,7 @@
   );
   transition: left 0.5s ease;
   pointer-events: none;
+  z-index: 0; /* Ensure it's behind content */
 }
 
 .registry-card:hover .card-background-shine {

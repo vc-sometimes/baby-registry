@@ -1,0 +1,36 @@
+.language-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: 'Crimson Text', serif;
+  font-size: clamp(14px, 1.5vw, 18px);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.language-toggle span {
+  transition: color 0.3s ease, font-weight 0.3s ease;
+  position: relative;
+}
+
+.language-toggle span.active {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.language-toggle .es-text:hover {
+  text-decoration: underline;
+}
+
+.language-toggle span:first-child:hover {
+  text-decoration: underline;
+}
+
+.language-toggle .separator {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+

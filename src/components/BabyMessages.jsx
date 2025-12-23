@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './BabyMessages.css'
 
 // Normalize API base URL - remove trailing slash to prevent double slashes
@@ -24,6 +26,8 @@ const getBrowserId = () => {
 }
 
 function BabyMessages() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const [messages, setMessages] = useState([])
   const [name, setName] = useState('')
   const [message, setMessage] = useState('')
@@ -225,7 +229,7 @@ function BabyMessages() {
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          leave a message for the baby
+          {t.messagesTitle}
         </motion.h2>
         <motion.p 
           className="section-subtitle"
@@ -234,7 +238,7 @@ function BabyMessages() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          we're going to compile these into a book for buba, so write something kind, something funny, or just some words of wisdom for the little one
+          {t.messagesSubtitle}
         </motion.p>
 
         {!hasMessage ? (
@@ -247,25 +251,25 @@ function BabyMessages() {
             transition={{ duration: 0.8, delay: 0.3 }}
           >
           <div className="form-group">
-            <label htmlFor="name">your name</label>
+            <label htmlFor="name">{t.messageNameLabel}</label>
             <input
               type="text"
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="enter your name"
+              placeholder={t.messageNamePlaceholder}
               required
               disabled={submitting}
             />
           </div>
           
           <div className="form-group">
-            <label htmlFor="message">your message</label>
+            <label htmlFor="message">{t.messageTextLabel}</label>
             <textarea
               id="message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="write your message here..."
+              placeholder={t.messageTextPlaceholder}
               rows="5"
               required
               disabled={submitting}
@@ -279,7 +283,7 @@ function BabyMessages() {
             whileHover={!submitting && name.trim() && message.trim() ? { scale: 1.02, y: -2 } : {}}
             whileTap={!submitting && name.trim() && message.trim() ? { scale: 0.98 } : {}}
           >
-            {submitting ? 'sending...' : 'send message'}
+            {submitting ? t.messageSending : t.messageSend}
           </motion.button>
         </motion.form>
         ) : (
@@ -297,18 +301,18 @@ function BabyMessages() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              {clearing ? 'clearing...' : 'clear my message'}
+              {clearing ? t.messageClearing : t.messageClear}
             </motion.button>
             <p className="message-thanks">
-              thanks for your message! 🎉
+              {t.messageThanks}
             </p>
           </motion.div>
         )}
 
         {loading ? (
-          <div className="messages-loading">loading messages...</div>
+          <div className="messages-loading">{t.messageLoading}</div>
         ) : messages.length === 0 ? (
-          <p className="no-messages">no messages yet. be the first to leave one!</p>
+          <p className="no-messages">{t.messageNoMessages}</p>
         ) : (
           <motion.div 
             className="messages-carousel-container"

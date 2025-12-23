@@ -2,7 +2,7 @@
   position: relative;
   border-bottom: 1px solid #8B6F47;
   width: 100%;
-  padding: clamp(80px, 10vw, 120px) clamp(32px, 4vw, 64px);
+  padding: clamp(120px, 12vw, 160px) clamp(32px, 4vw, 64px) clamp(80px, 10vw, 120px);
   min-height: 100vh;
   display: flex;
   align-items: center;

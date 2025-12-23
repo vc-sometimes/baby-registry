@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import Lenis from 'lenis'
+import { LanguageProvider } from './contexts/LanguageContext'
 import Header from './components/Header'
+import LanguageToggle from './components/LanguageToggle'
 import Hero from './components/Hero'
 import OurStory from './components/OurStory'
 import BabyJourney from './components/BabyJourney'
@@ -61,16 +63,18 @@ function App() {
   }, [])
 
   return (
-    <div className="app">
-      <Header />
-      <Hero />
-      <OurStory />
-      <BabyJourney />
-      <Registries />
-      <GenderVote />
-      <BabyMessages />
-      <Footer />
-    </div>
+    <LanguageProvider>
+      <div className="app">
+        <Header />
+        <Hero />
+        <OurStory />
+        <BabyJourney />
+        <Registries />
+        <GenderVote />
+        <BabyMessages />
+        <Footer />
+      </div>
+    </LanguageProvider>
   )
 }
 

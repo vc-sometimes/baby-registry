@@ -1,8 +1,12 @@
 import React, { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './Hero.css'
 
 function Hero() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const heroRef = useRef(null)
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -42,7 +46,7 @@ function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
           >
-            we're having a baby!
+            {t.heroTitle}
           </motion.h1>
         </motion.div>
         
@@ -77,7 +81,7 @@ function Hero() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             >
-              our little one is on the way
+              {t.heroSubtitle}
             </motion.h2>
             <motion.p 
               className="announcement"
@@ -85,7 +89,7 @@ function Hero() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
             >
-              as you probably know, and if you didn't you do now (surprise). we created this as a way to inform our friends and family of important baby information, details about our registries and some fun games.
+              {t.heroAnnouncement}
             </motion.p>
             <motion.button 
               className="registries-button" 
@@ -96,7 +100,7 @@ function Hero() {
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
-              registries
+              {t.heroButton}
             </motion.button>
           </motion.div>
         </motion.div>

@@ -97,25 +97,6 @@
   border-radius: 2px;
 }
 
-.quote-text::before {
-  content: '"';
-  font-size: 1.5em;
-  color: rgba(0, 0, 0, 0.2);
-  position: absolute;
-  left: 28px;
-  top: 28px;
-  line-height: 1;
-}
-
-.quote-text::after {
-  content: '"';
-  font-size: 1.5em;
-  color: rgba(0, 0, 0, 0.2);
-  position: absolute;
-  right: 28px;
-  bottom: 28px;
-  line-height: 1;
-}
 
 .quote-attribution {
   font-family: 'Crimson Text', serif;
@@ -153,15 +134,6 @@
     line-height: 1.6;
   }
   
-  .quote-text::before {
-    left: 20px;
-    top: 20px;
-  }
-  
-  .quote-text::after {
-    right: 20px;
-    bottom: 20px;
-  }
   
   .quote-attribution {
     font-size: clamp(16px, 3vw, 18px);
@@ -182,17 +154,6 @@
     padding: 20px;
   }
   
-  .quote-text::before {
-    left: 16px;
-    top: 16px;
-    font-size: 1.2em;
-  }
-  
-  .quote-text::after {
-    right: 16px;
-    bottom: 16px;
-    font-size: 1.2em;
-  }
   
   .quote-attribution {
     font-size: 15px;

@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './Registries.css'
 
 function Registries() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -66,7 +70,7 @@ function Registries() {
           viewport={{ once: true }}
           transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          registries
+          {t.registriesTitle}
         </motion.h2>
         <motion.p 
           className="section-subtitle"
@@ -75,7 +79,7 @@ function Registries() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          as most of you know, babies require things, and if you could be so gracious to help us that would be super cool!
+          {t.registriesSubtitle}
         </motion.p>
         <motion.div 
           className="registry-cards"

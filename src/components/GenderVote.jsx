@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './GenderVote.css'
 
 // Normalize API base URL - remove trailing slash to prevent double slashes
@@ -24,6 +26,8 @@ const getBrowserId = () => {
 }
 
 function GenderVote() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const [boyVotes, setBoyVotes] = useState(0)
   const [girlVotes, setGirlVotes] = useState(0)
   const [userVote, setUserVote] = useState(null)
@@ -160,14 +164,14 @@ function GenderVote() {
     <section className="gender-vote">
       <div className="gender-vote-content">
         <h2 className="section-title">
-          what do you think?
+          {t.voteTitle}
         </h2>
         <p className="vote-subtitle">
-          we're not going to know the gender until the baby is born but you can cast your votes on what you think the baby will be
+          {t.voteSubtitle}
         </p>
 
         {loading ? (
-          <div className="vote-loading">loading votes...</div>
+          <div className="vote-loading">{t.voteLoading}</div>
         ) : (
           <>
             {!hasVoted ? (
@@ -193,11 +197,11 @@ function GenderVote() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    {clearing ? 'clearing...' : 'clear my vote'}
+                    {clearing ? t.voteClearing : t.voteClear}
                   </motion.button>
                 </motion.div>
                 <p className="vote-thanks">
-                  thanks for voting! 🎉
+                  {t.voteThanks}
                 </p>
               </>
             )}
@@ -208,14 +212,14 @@ function GenderVote() {
         {!loading && (
           <div className="vote-results">
             <div className="results-header">
-              <span className="total-votes">{totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}</span>
+              <span className="total-votes">{typeof t.voteTotal === 'function' ? t.voteTotal(totalVotes) : `${totalVotes} ${totalVotes === 1 ? 'vote' : 'votes'}`}</span>
             </div>
             
             {totalVotes > 0 ? (
               <div className="results-bars">
                 <div className="result-bar">
                   <div className="bar-label">
-                    <span>boy</span>
+                    <span>{t.voteBoy}</span>
                     <span className="bar-percentage">{boyPercentage}%</span>
                   </div>
                   <div className="bar-container">
@@ -232,7 +236,7 @@ function GenderVote() {
 
                 <div className="result-bar">
                   <div className="bar-label">
-                    <span>girl</span>
+                    <span>{t.voteGirl}</span>
                     <span className="bar-percentage">{girlPercentage}%</span>
                   </div>
                   <div className="bar-container">
@@ -248,7 +252,7 @@ function GenderVote() {
                 </div>
               </div>
             ) : (
-              <p className="no-votes-yet">no votes yet. be the first to vote!</p>
+              <p className="no-votes-yet">{t.voteNoVotes}</p>
             )}
           </div>
         )}
@@ -258,6 +262,8 @@ function GenderVote() {
 }
 
 function VoteButtons({ userVote, hasVoted, submitting, handleVote }) {
+  const { language } = useLanguage()
+  const t = translations[language]
   const [boyMousePosition, setBoyMousePosition] = useState({ x: 0, y: 0 })
   const [girlMousePosition, setGirlMousePosition] = useState({ x: 0, y: 0 })
   const [boyHovered, setBoyHovered] = useState(false)
@@ -345,7 +351,7 @@ function VoteButtons({ userVote, hasVoted, submitting, handleVote }) {
         whileTap={!hasVoted && !submitting ? { scale: 0.98 } : {}}
       >
         <span className="vote-emoji">👦🏽</span>
-        <span className="vote-label">boy</span>
+        <span className="vote-label">{t.voteBoy}</span>
       </motion.button>
 
       <motion.button
@@ -364,7 +370,7 @@ function VoteButtons({ userVote, hasVoted, submitting, handleVote }) {
         whileTap={!hasVoted && !submitting ? { scale: 0.98 } : {}}
       >
         <span className="vote-emoji">👧🏽</span>
-        <span className="vote-label">girl</span>
+        <span className="vote-label">{t.voteGirl}</span>
       </motion.button>
     </div>
   )

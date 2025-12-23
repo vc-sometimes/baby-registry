@@ -1,8 +1,12 @@
 import React from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './BabyJourney.css'
 
 function BabyJourney() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const sectionRef = React.useRef(null)
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -53,7 +57,7 @@ function BabyJourney() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.5 }}
           >
-            this baby won't stop kicking me
+            {t.journeyQuote}
           </motion.blockquote>
           <motion.p 
             className="quote-attribution"
@@ -62,7 +66,7 @@ function BabyJourney() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.7 }}
           >
-            -brisa
+            {t.journeyAttribution}
           </motion.p>
         </motion.div>
       </div>

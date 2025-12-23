@@ -1,8 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '../contexts/LanguageContext'
+import translations from '../translations'
 import './OurStory.css'
 
 function OurStory() {
+  const { language } = useLanguage()
+  const t = translations[language]
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -54,20 +58,20 @@ function OurStory() {
             viewport={{ once: true }}
             transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            our story
+            {t.storyTitle}
           </motion.h2>
           <motion.div 
             className="story-body"
             variants={containerVariants}
           >
             <motion.p className="story-intro" variants={textVariants}>
-              it sounds cliche but we fell in love at first sight (shoutout hinge). we knew from day one that we wanted to be in each others lives, and on our second date we were already talking about how many kids we'd have and what we would name them.
+              {t.storyIntro}
             </motion.p>
             <motion.p className="story-details" variants={textVariants}>
-              little did we know that a little surprise was awaiting us only four months later!! while we were both shocked, we couldn't have been happier about our little buba.
+              {t.storyDetails}
             </motion.p>
             <motion.p className="story-closing" variants={textVariants}>
-              buba comes from baba, russian for baby, but brisa didn't want to call our baby that because it's also spanish for saliva. so she changed a letter and now baby is not drool baby is cool.
+              {t.storyClosing}
             </motion.p>
           </motion.div>
         </div>

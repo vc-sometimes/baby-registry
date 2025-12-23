@@ -3,12 +3,13 @@
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 100;
   background: rgba(250, 248, 245, 0.95);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   width: 100%;
   transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  isolation: isolate;
 }
 
 .dark .header {

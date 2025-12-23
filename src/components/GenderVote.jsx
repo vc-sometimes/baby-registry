@@ -209,51 +209,47 @@ function GenderVote() {
         )}
 
         {/* Always show vote results, even if user hasn't voted */}
-        {!loading && (
+        {!loading && totalVotes > 0 && (
           <div className="vote-results">
             <div className="results-header">
               <span className="total-votes">{typeof t.voteTotal === 'function' ? t.voteTotal(totalVotes) : `${totalVotes} ${totalVotes === 1 ? 'vote' : 'votes'}`}</span>
             </div>
             
-            {totalVotes > 0 ? (
-              <div className="results-bars">
-                <div className="result-bar">
-                  <div className="bar-label">
-                    <span>{t.voteBoy}</span>
-                    <span className="bar-percentage">{boyPercentage}%</span>
-                  </div>
-                  <div className="bar-container">
-                    <motion.div 
-                      className="bar-fill bar-boy"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${boyPercentage}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-                    />
-                  </div>
-                  <span className="bar-count">{boyVotes}</span>
+            <div className="results-bars">
+              <div className="result-bar">
+                <div className="bar-label">
+                  <span>{t.voteBoy}</span>
+                  <span className="bar-percentage">{boyPercentage}%</span>
                 </div>
-
-                <div className="result-bar">
-                  <div className="bar-label">
-                    <span>{t.voteGirl}</span>
-                    <span className="bar-percentage">{girlPercentage}%</span>
-                  </div>
-                  <div className="bar-container">
-                    <motion.div 
-                      className="bar-fill bar-girl"
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${girlPercentage}%` }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-                    />
-                  </div>
-                  <span className="bar-count">{girlVotes}</span>
+                <div className="bar-container">
+                  <motion.div 
+                    className="bar-fill bar-boy"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${boyPercentage}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+                  />
                 </div>
+                <span className="bar-count">{boyVotes}</span>
               </div>
-            ) : (
-              <p className="no-votes-yet">{t.voteNoVotes}</p>
-            )}
+
+              <div className="result-bar">
+                <div className="bar-label">
+                  <span>{t.voteGirl}</span>
+                  <span className="bar-percentage">{girlPercentage}%</span>
+                </div>
+                <div className="bar-container">
+                  <motion.div 
+                    className="bar-fill bar-girl"
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${girlPercentage}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
+                  />
+                </div>
+                <span className="bar-count">{girlVotes}</span>
+              </div>
+            </div>
           </div>
         )}
       </div>

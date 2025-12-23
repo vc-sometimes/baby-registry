@@ -9,6 +9,20 @@ const getApiBase = () => {
 }
 const API_BASE = getApiBase()
 
+// Generate or retrieve a unique browser ID stored in localStorage
+const getBrowserId = () => {
+  const STORAGE_KEY = 'babyRegistryBrowserId'
+  let browserId = localStorage.getItem(STORAGE_KEY)
+  
+  if (!browserId) {
+    // Generate a unique ID using timestamp + random string
+    browserId = `browser_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+    localStorage.setItem(STORAGE_KEY, browserId)
+  }
+  
+  return browserId
+}
+
 function BabyMessages() {
   const [messages, setMessages] = useState([])
   const [name, setName] = useState('')
@@ -16,11 +30,14 @@ function BabyMessages() {
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [clearing, setClearing] = useState(false)
+  const [hasMessage, setHasMessage] = useState(false)
+  const [userMessage, setUserMessage] = useState(null)
   const submitRef = useRef(false)
   const lastSubmitTimeRef = useRef(0)
 
   useEffect(() => {
     fetchMessages()
+    checkUserMessage()
   }, [])
 
   const fetchMessages = async () => {
@@ -29,6 +46,8 @@ function BabyMessages() {
       if (response.ok) {
         const data = await response.json()
         setMessages(data.messages || [])
+        // Also check if user has a message
+        await checkUserMessage()
       }
     } catch (error) {
       console.error('Error fetching messages:', error)
@@ -37,30 +56,57 @@ function BabyMessages() {
     }
   }
 
-  const handleClearMessages = async () => {
-    if (!window.confirm('Are you sure you want to clear all messages? This cannot be undone.')) {
+  const checkUserMessage = async () => {
+    try {
+      const browserId = getBrowserId()
+      const response = await fetch(`${API_BASE}/api/messages/check?browserId=${encodeURIComponent(browserId)}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.hasMessage) {
+          setHasMessage(true)
+          setUserMessage(data.message)
+        } else {
+          setHasMessage(false)
+          setUserMessage(null)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking user message:', error)
+    }
+  }
+
+  const handleClearMessage = async () => {
+    if (!window.confirm('Are you sure you want to clear your message? You can submit a new one after clearing.')) {
       return
     }
 
     setClearing(true)
 
     try {
-      const response = await fetch(`${API_BASE}/api/messages`, {
+      const browserId = getBrowserId()
+      const response = await fetch(`${API_BASE}/api/messages?browserId=${encodeURIComponent(browserId)}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
-        setMessages([])
+        setHasMessage(false)
+        setUserMessage(null)
+        await fetchMessages()
+        await checkUserMessage()
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert(errorData.error || 'Failed to clear messages. Please try again.')
+        if (response.status === 404) {
+          alert('You haven\'t submitted a message yet.')
+        } else {
+          alert(errorData.error || 'Failed to clear your message. Please try again.')
+        }
       }
     } catch (error) {
-      console.error('Error clearing messages:', error)
+      console.error('Error clearing message:', error)
       if (error.message && (error.message.includes('Failed to fetch') || error.message.includes('NetworkError'))) {
         alert('Cannot connect to server. Please make sure you\'re running "npm run dev" to start both servers.')
       } else {
-        alert('Failed to clear messages. Please check your connection and try again.')
+        alert('Failed to clear your message. Please check your connection and try again.')
       }
     } finally {
       setClearing(false)
@@ -91,6 +137,7 @@ function BabyMessages() {
     // Store the values before clearing to prevent race conditions
     const nameValue = name.trim()
     const messageValue = message.trim()
+    const browserId = getBrowserId()
     
     // Create a unique submission ID for this request
     const submissionId = `${now}_${Math.random().toString(36).substring(2, 9)}`
@@ -105,6 +152,7 @@ function BabyMessages() {
         body: JSON.stringify({ 
           name: nameValue, 
           message: messageValue,
+          browserId: browserId,
           submissionId: submissionId // Include submission ID for tracking
         }),
       })
@@ -115,6 +163,9 @@ function BabyMessages() {
         // Clear form immediately
         setName('')
         setMessage('')
+        // Update user message state
+        setHasMessage(true)
+        setUserMessage(data.message)
         // Refresh messages from server to ensure consistency
         await fetchMessages()
       } else {
@@ -186,7 +237,7 @@ function BabyMessages() {
           share your love, wishes, and advice for our little one. we'll collect all your messages and put them in a book for baby to treasure forever.
         </motion.p>
 
-        {messages.length > 0 && (
+        {hasMessage && (
           <motion.div
             className="clear-messages-container"
             initial={{ opacity: 0 }}
@@ -196,12 +247,12 @@ function BabyMessages() {
           >
             <motion.button
               className="clear-button"
-              onClick={handleClearMessages}
+              onClick={handleClearMessage}
               disabled={clearing}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              {clearing ? 'clearing...' : 'clear all messages'}
+              {clearing ? 'clearing...' : 'clear my message'}
             </motion.button>
           </motion.div>
         )}

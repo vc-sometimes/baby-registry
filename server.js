@@ -301,10 +301,14 @@ app.get('/api/messages', (req, res) => {
 // Submit a message
 app.post('/api/messages', (req, res) => {
   try {
-    const { name, message, submissionId } = req.body
+    const { name, message, browserId, submissionId } = req.body
     
     if (!name || !message) {
       return res.status(400).json({ error: 'Name and message are required' })
+    }
+
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
     }
 
     if (name.trim().length === 0 || message.trim().length === 0) {
@@ -318,6 +322,29 @@ app.post('/api/messages', (req, res) => {
     const messageTrimmed = message.trim()
     const now = Date.now()
     const timestamp = new Date().toISOString()
+
+    // Check if this browser has already submitted a message
+    const existingMessageIndex = messages.findIndex(msg => msg.browserId === browserId)
+    if (existingMessageIndex !== -1) {
+      // User already has a message, update it instead of creating duplicate
+      const existingMessage = messages[existingMessageIndex]
+      console.log(`[MESSAGES] Browser ${browserId} already has a message, updating it`)
+      
+      messages[existingMessageIndex] = {
+        ...existingMessage,
+        name: nameTrimmed,
+        message: messageTrimmed,
+        timestamp: timestamp,
+        submissionId: submissionId || existingMessage.submissionId
+      }
+      
+      writeMessages({ messages })
+      
+      return res.json({
+        success: true,
+        message: messages[existingMessageIndex]
+      })
+    }
 
     // Check for duplicate messages within the last 10 seconds (same name and message)
     const recentDuplicate = messages.find(msg => {
@@ -354,11 +381,12 @@ app.post('/api/messages', (req, res) => {
       id: `${now}_${Math.random().toString(36).substring(2, 15)}`, // More unique ID
       name: nameTrimmed,
       message: messageTrimmed,
+      browserId: browserId,
       timestamp: timestamp,
       submissionId: submissionId || null // Store submission ID if provided
     }
 
-    console.log(`[MESSAGES] Adding new message from ${nameTrimmed} [Submission ID: ${submissionId || 'none'}], total messages: ${messages.length + 1}`)
+    console.log(`[MESSAGES] Adding new message from ${nameTrimmed} [Browser ID: ${browserId}] [Submission ID: ${submissionId || 'none'}], total messages: ${messages.length + 1}`)
     messages.push(newMessage)
     writeMessages({ messages })
 
@@ -376,17 +404,62 @@ app.post('/api/messages', (req, res) => {
   }
 })
 
-// Delete all messages
-app.delete('/api/messages', (req, res) => {
+// Check if user has a message
+app.get('/api/messages/check', (req, res) => {
   try {
-    writeMessages({ messages: [] })
+    const browserId = req.query.browserId
+    
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
+    }
+
+    const data = readMessages()
+    const messages = data.messages || []
+    const message = messages.find(msg => msg.browserId === browserId)
+    
     res.json({
-      success: true,
-      message: 'All messages cleared'
+      hasMessage: !!message,
+      message: message || null
     })
   } catch (error) {
-    console.error('Error clearing messages:', error)
-    res.status(500).json({ error: 'Failed to clear messages' })
+    console.error('Error checking message:', error)
+    res.status(500).json({ error: 'Failed to check message' })
+  }
+})
+
+// Delete user's own message
+app.delete('/api/messages', (req, res) => {
+  try {
+    const browserId = req.query.browserId
+    
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
+    }
+
+    const data = readMessages()
+    const messages = data.messages || []
+    
+    // Find the user's message by browserId
+    const userMessageIndex = messages.findIndex(msg => msg.browserId === browserId)
+    
+    if (userMessageIndex === -1) {
+      // User hasn't submitted a message
+      return res.status(404).json({ 
+        error: 'No message found to delete'
+      })
+    }
+    
+    // Remove the user's message
+    messages.splice(userMessageIndex, 1)
+    writeMessages({ messages })
+    
+    res.json({
+      success: true,
+      message: 'Your message has been cleared'
+    })
+  } catch (error) {
+    console.error('Error clearing message:', error)
+    res.status(500).json({ error: 'Failed to clear message' })
   }
 })
 

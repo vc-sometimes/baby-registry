@@ -237,34 +237,15 @@ function BabyMessages() {
           share your love, wishes, and advice for our little one. we'll collect all your messages and put them in a book for baby to treasure forever.
         </motion.p>
 
-        {hasMessage && (
-          <motion.div
-            className="clear-messages-container"
+        {!hasMessage ? (
+          <motion.form 
+            className="message-form"
+            onSubmit={handleSubmit}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.25 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <motion.button
-              className="clear-button"
-              onClick={handleClearMessage}
-              disabled={clearing}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {clearing ? 'clearing...' : 'clear my message'}
-            </motion.button>
-          </motion.div>
-        )}
-
-        <motion.form 
-          className="message-form"
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-        >
           <div className="form-group">
             <label htmlFor="name">your name</label>
             <input
@@ -301,6 +282,28 @@ function BabyMessages() {
             {submitting ? 'sending...' : 'send message'}
           </motion.button>
         </motion.form>
+        ) : (
+          <motion.div
+            className="clear-messages-container"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.25 }}
+          >
+            <motion.button
+              className="clear-button"
+              onClick={handleClearMessage}
+              disabled={clearing}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {clearing ? 'clearing...' : 'clear my message'}
+            </motion.button>
+            <p className="message-thanks">
+              thanks for your message! 🎉
+            </p>
+          </motion.div>
+        )}
 
         {loading ? (
           <div className="messages-loading">loading messages...</div>

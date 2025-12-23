@@ -80,13 +80,12 @@ function BabyMessages() {
       return
     }
     
-    if (!name.trim() || !message.trim() || submitting || submitRef.current) {
+    if (!name.trim() || !message.trim() || submitting) {
       return
     }
 
     // Set lock immediately
     lastSubmitTimeRef.current = now
-    submitRef.current = true
     setSubmitting(true)
 
     // Store the values before clearing to prevent race conditions
@@ -139,7 +138,6 @@ function BabyMessages() {
       // Add a delay before allowing another submission
       setTimeout(() => {
         setSubmitting(false)
-        submitRef.current = false
       }, 1000)
     }
   }
@@ -245,15 +243,9 @@ function BabyMessages() {
           <motion.button
             type="submit"
             className="submit-button"
-            disabled={submitting || submitRef.current || !name.trim() || !message.trim()}
-            onClick={(e) => {
-              // Disable button immediately on click
-              if (!submitting && !submitRef.current && name.trim() && message.trim()) {
-                e.currentTarget.disabled = true
-              }
-            }}
-            whileHover={!submitting && !submitRef.current ? { scale: 1.02, y: -2 } : {}}
-            whileTap={!submitting && !submitRef.current ? { scale: 0.98 } : {}}
+            disabled={submitting || !name.trim() || !message.trim()}
+            whileHover={!submitting && name.trim() && message.trim() ? { scale: 1.02, y: -2 } : {}}
+            whileTap={!submitting && name.trim() && message.trim() ? { scale: 0.98 } : {}}
           >
             {submitting ? 'sending...' : 'send message'}
           </motion.button>

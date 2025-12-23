@@ -123,33 +123,39 @@ app.get('/api/votes/all', (req, res) => {
 // Submit a vote
 app.post('/api/votes', (req, res) => {
   try {
-    const { voteType } = req.body
+    const { voteType, browserId } = req.body
     
     if (!voteType || !['boy', 'girl'].includes(voteType)) {
       return res.status(400).json({ error: 'Invalid vote type' })
     }
 
-    // Get user IP (for basic duplicate prevention)
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
+    }
+
+    // Get user IP (for reference, but browserId is primary identifier)
     const userIp = getUserIp(req)
 
     const data = readVotes()
     const votes = data.votes || []
 
-    // Check if this IP has already voted
-    const existingVote = votes.find(v => v.userIp === userIp)
+    // Check if this browser has already voted (using browserId as primary identifier)
+    const existingVote = votes.find(v => v.browserId === browserId)
     if (existingVote) {
       return res.status(400).json({ 
         error: 'You have already voted',
         boy: votes.filter(v => v.voteType === 'boy').length,
         girl: votes.filter(v => v.voteType === 'girl').length,
-        total: votes.length
+        total: votes.length,
+        voteType: existingVote.voteType
       })
     }
 
     // Add new vote
     votes.push({
       voteType,
-      userIp,
+      browserId,
+      userIp, // Store IP for reference
       createdAt: new Date().toISOString()
     })
 
@@ -174,20 +180,15 @@ app.post('/api/votes', (req, res) => {
 // Check if user has voted
 app.get('/api/votes/check', (req, res) => {
   try {
-    const userIp = getUserIp(req)
+    const browserId = req.query.browserId
+    
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
+    }
+
     const data = readVotes()
     const votes = data.votes || []
-    const vote = votes.find(v => {
-      // Try exact match first
-      if (v.userIp === userIp) return true
-      // Also check if stored IP matches common localhost variations
-      const storedIp = v.userIp || ''
-      if ((userIp === '127.0.0.1' || userIp === '::1' || userIp === '::ffff:127.0.0.1') && 
-          (storedIp === '127.0.0.1' || storedIp === '::1' || storedIp === '::ffff:127.0.0.1')) {
-        return true
-      }
-      return false
-    })
+    const vote = votes.find(v => v.browserId === browserId)
     
     res.json({
       hasVoted: !!vote,
@@ -215,22 +216,17 @@ const getUserIp = (req) => {
 // Delete user's own vote
 app.delete('/api/votes', (req, res) => {
   try {
-    const userIp = getUserIp(req)
+    const browserId = req.query.browserId
+    
+    if (!browserId) {
+      return res.status(400).json({ error: 'Browser ID is required' })
+    }
+
     const data = readVotes()
     const votes = data.votes || []
     
-    // Find the user's vote
-    const userVoteIndex = votes.findIndex(v => {
-      // Try exact match first
-      if (v.userIp === userIp) return true
-      // Also check if stored IP matches common localhost variations
-      const storedIp = v.userIp || ''
-      if ((userIp === '127.0.0.1' || userIp === '::1' || userIp === '::ffff:127.0.0.1') && 
-          (storedIp === '127.0.0.1' || storedIp === '::1' || storedIp === '::ffff:127.0.0.1')) {
-        return true
-      }
-      return false
-    })
+    // Find the user's vote by browserId
+    const userVoteIndex = votes.findIndex(v => v.browserId === browserId)
     
     if (userVoteIndex === -1) {
       // User hasn't voted

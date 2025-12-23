@@ -9,6 +9,20 @@ const getApiBase = () => {
 }
 const API_BASE = getApiBase()
 
+// Generate or retrieve a unique browser ID stored in localStorage
+const getBrowserId = () => {
+  const STORAGE_KEY = 'babyRegistryBrowserId'
+  let browserId = localStorage.getItem(STORAGE_KEY)
+  
+  if (!browserId) {
+    // Generate a unique ID using timestamp + random string
+    browserId = `browser_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
+    localStorage.setItem(STORAGE_KEY, browserId)
+  }
+  
+  return browserId
+}
+
 function GenderVote() {
   const [boyVotes, setBoyVotes] = useState(0)
   const [girlVotes, setGirlVotes] = useState(0)
@@ -23,9 +37,10 @@ function GenderVote() {
     // Load votes and check if user has voted
     const fetchVotes = async () => {
       try {
+        const browserId = getBrowserId()
         const [votesResponse, checkResponse, allVotesResponse] = await Promise.all([
           fetch(`${API_BASE}/api/votes`),
-          fetch(`${API_BASE}/api/votes/check`),
+          fetch(`${API_BASE}/api/votes/check?browserId=${encodeURIComponent(browserId)}`),
           fetch(`${API_BASE}/api/votes/all`)
         ])
 
@@ -63,12 +78,13 @@ function GenderVote() {
     setSubmitting(true)
 
     try {
+      const browserId = getBrowserId()
       const response = await fetch(`${API_BASE}/api/votes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ voteType: vote }),
+        body: JSON.stringify({ voteType: vote, browserId }),
       })
 
       if (response.ok) {
@@ -117,7 +133,8 @@ function GenderVote() {
     setClearing(true)
 
     try {
-      const response = await fetch(`${API_BASE}/api/votes`, {
+      const browserId = getBrowserId()
+      const response = await fetch(`${API_BASE}/api/votes?browserId=${encodeURIComponent(browserId)}`, {
         method: 'DELETE',
       })
 
@@ -127,8 +144,6 @@ function GenderVote() {
         setGirlVotes(data.girl)
         setUserVote(null)
         setHasVoted(false)
-        // Clear localStorage as well
-        localStorage.removeItem('genderVote')
         // Refresh all votes
         const allVotesResponse = await fetch(`${API_BASE}/api/votes/all`)
         if (allVotesResponse.ok) {

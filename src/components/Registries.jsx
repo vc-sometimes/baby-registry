@@ -75,8 +75,7 @@ function Registries() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          we're so grateful for your love and support. here are our registries 
-          if you'd like to help us prepare for our little one's arrival.
+          as most of you know, babies require things, and if you could be so gracious to help us that would be super cool!
         </motion.p>
         <motion.div 
           className="registry-cards"

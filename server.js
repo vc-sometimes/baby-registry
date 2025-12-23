@@ -431,6 +431,17 @@ app.get('/api/messages/check', (req, res) => {
 app.delete('/api/messages', (req, res) => {
   try {
     const browserId = req.query.browserId
+    const clearAll = req.query.clearAll === 'true'
+    
+    // Admin endpoint to clear all messages
+    if (clearAll) {
+      writeMessages({ messages: [] })
+      console.log('[MESSAGES] All messages cleared')
+      return res.json({
+        success: true,
+        message: 'All messages cleared'
+      })
+    }
     
     if (!browserId) {
       return res.status(400).json({ error: 'Browser ID is required' })
@@ -460,6 +471,24 @@ app.delete('/api/messages', (req, res) => {
   } catch (error) {
     console.error('Error clearing message:', error)
     res.status(500).json({ error: 'Failed to clear message' })
+  }
+})
+
+// Admin endpoint to clear all votes
+app.delete('/api/votes/all', (req, res) => {
+  try {
+    writeVotes({ votes: [] })
+    console.log('[VOTES] All votes cleared')
+    res.json({
+      success: true,
+      message: 'All votes cleared',
+      boy: 0,
+      girl: 0,
+      total: 0
+    })
+  } catch (error) {
+    console.error('Error clearing all votes:', error)
+    res.status(500).json({ error: 'Failed to clear votes' })
   }
 })
 

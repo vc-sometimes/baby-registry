@@ -101,6 +101,25 @@ app.get('/api/votes', (req, res) => {
   }
 })
 
+// Get all votes (for displaying individual votes)
+app.get('/api/votes/all', (req, res) => {
+  try {
+    const data = readVotes()
+    const votes = (data.votes || []).map(vote => ({
+      voteType: vote.voteType,
+      createdAt: vote.createdAt,
+      // Don't expose IP addresses for privacy
+    })).sort((a, b) => {
+      return new Date(b.createdAt) - new Date(a.createdAt)
+    })
+    
+    res.json({ votes })
+  } catch (error) {
+    console.error('Error fetching all votes:', error)
+    res.status(500).json({ error: 'Failed to fetch votes' })
+  }
+})
+
 // Submit a vote
 app.post('/api/votes', (req, res) => {
   try {

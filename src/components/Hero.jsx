@@ -85,7 +85,7 @@ function Hero() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
             >
-              we're expecting our first child. we're so excited to share this journey with you and can't wait to welcome our little one into the world.
+              as you probably know, and if you didn't you do now (surprise). we created this as a way to inform our friends and family of important baby information, details about our registries and some fun games.
             </motion.p>
             <motion.button 
               className="registries-button" 

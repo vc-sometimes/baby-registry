@@ -65,13 +65,7 @@
 }
 
 .hero-title h1::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 120px;
-  height: 2px;
-  background: var(--accent-color);
+  display: none;
 }
 
 .hero-content {

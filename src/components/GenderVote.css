@@ -26,14 +26,7 @@
 }
 
 .section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -24px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 2px;
-  background: #C97D60;
+  display: none;
 }
 
 .vote-subtitle {

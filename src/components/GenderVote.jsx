@@ -163,7 +163,7 @@ function GenderVote() {
           what do you think?
         </h2>
         <p className="vote-subtitle">
-          cast your vote for baby's gender
+          we're not going to know the gender until the baby is born but you can cast your votes on what you think the baby will be
         </p>
 
         {loading ? (

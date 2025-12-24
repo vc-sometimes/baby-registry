@@ -117,6 +117,30 @@ function BabyMessages() {
     }
   }
 
+  const handleDeleteMessage = async (messageId) => {
+    if (!window.confirm('Are you sure you want to delete this message?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`${API_BASE}/api/messages/${messageId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        await fetchMessages()
+        // Also check if the deleted message was the user's own message
+        await checkUserMessage()
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        alert(errorData.error || 'Failed to delete message. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error)
+      alert('Failed to delete message. Please check your connection and try again.')
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     e.stopPropagation() // Prevent event bubbling
@@ -330,13 +354,23 @@ function BabyMessages() {
                     >
                       <div className="message-header">
                         <span className="message-name">{msg.name}</span>
-                        <span className="message-date">
-                          {new Date(msg.timestamp).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
+                        <div className="message-header-right">
+                          <span className="message-date">
+                            {new Date(msg.timestamp).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          <button
+                            className="delete-message-button"
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            title="Delete message"
+                            aria-label="Delete message"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
                       <p className="message-text">{msg.message}</p>
                     </div>
@@ -348,13 +382,23 @@ function BabyMessages() {
                     >
                       <div className="message-header">
                         <span className="message-name">{msg.name}</span>
-                        <span className="message-date">
-                          {new Date(msg.timestamp).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            year: 'numeric'
-                          })}
-                        </span>
+                        <div className="message-header-right">
+                          <span className="message-date">
+                            {new Date(msg.timestamp).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
+                          </span>
+                          <button
+                            className="delete-message-button"
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            title="Delete message"
+                            aria-label="Delete message"
+                          >
+                            ×
+                          </button>
+                        </div>
                       </div>
                       <p className="message-text">{msg.message}</p>
                     </div>

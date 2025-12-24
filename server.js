@@ -474,6 +474,43 @@ app.delete('/api/messages', (req, res) => {
   }
 })
 
+// Admin endpoint to delete any message by ID
+app.delete('/api/messages/:id', (req, res) => {
+  try {
+    const messageId = req.params.id
+    
+    if (!messageId) {
+      return res.status(400).json({ error: 'Message ID is required' })
+    }
+
+    const data = readMessages()
+    const messages = data.messages || []
+    
+    // Find the message by ID
+    const messageIndex = messages.findIndex(msg => msg.id === messageId)
+    
+    if (messageIndex === -1) {
+      return res.status(404).json({ 
+        error: 'Message not found'
+      })
+    }
+    
+    // Remove the message
+    messages.splice(messageIndex, 1)
+    writeMessages({ messages })
+    
+    console.log(`[MESSAGES] Message ${messageId} deleted`)
+    
+    res.json({
+      success: true,
+      message: 'Message deleted successfully'
+    })
+  } catch (error) {
+    console.error('Error deleting message:', error)
+    res.status(500).json({ error: 'Failed to delete message' })
+  }
+})
+
 // Admin endpoint to clear all votes
 app.delete('/api/votes/all', (req, res) => {
   try {

@@ -209,6 +209,12 @@
   border-bottom: 1px solid #E8DFD0;
 }
 
+.message-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .message-name {
   font-family: 'Crimson Text', serif;
   font-size: clamp(18px, 2vw, 20px);
@@ -221,6 +227,30 @@
   font-size: clamp(14px, 1.6vw, 16px);
   color: #5D4037;
   opacity: 0.7;
+}
+
+.delete-message-button {
+  background: transparent;
+  border: none;
+  color: #8B6F47;
+  font-size: 24px;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, transform 0.2s ease;
+  opacity: 0.6;
+}
+
+.delete-message-button:hover {
+  color: #C97D60;
+  opacity: 1;
+  transform: scale(1.2);
 }
 
 .message-text {

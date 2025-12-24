@@ -478,6 +478,15 @@ app.delete('/api/messages', (req, res) => {
 app.delete('/api/messages/:id', (req, res) => {
   try {
     const messageId = req.params.id
+    const adminKey = req.headers['x-admin-key'] || req.query.adminKey
+    
+    // Check admin key
+    const expectedAdminKey = process.env.ADMIN_KEY || 'buba-admin-2024'
+    if (adminKey !== expectedAdminKey) {
+      return res.status(403).json({ 
+        error: 'Unauthorized: Admin access required'
+      })
+    }
     
     if (!messageId) {
       return res.status(400).json({ error: 'Message ID is required' })
@@ -499,7 +508,7 @@ app.delete('/api/messages/:id', (req, res) => {
     messages.splice(messageIndex, 1)
     writeMessages({ messages })
     
-    console.log(`[MESSAGES] Message ${messageId} deleted`)
+    console.log(`[MESSAGES] Message ${messageId} deleted by admin`)
     
     res.json({
       success: true,
@@ -508,6 +517,30 @@ app.delete('/api/messages/:id', (req, res) => {
   } catch (error) {
     console.error('Error deleting message:', error)
     res.status(500).json({ error: 'Failed to delete message' })
+  }
+})
+
+// Admin login endpoint
+app.post('/api/admin/login', (req, res) => {
+  try {
+    const { password } = req.body
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'buba2024'
+    
+    if (password === expectedPassword) {
+      const adminKey = process.env.ADMIN_KEY || 'buba-admin-2024'
+      res.json({
+        success: true,
+        adminKey: adminKey
+      })
+    } else {
+      res.status(401).json({
+        success: false,
+        error: 'Invalid password'
+      })
+    }
+  } catch (error) {
+    console.error('Error in admin login:', error)
+    res.status(500).json({ error: 'Failed to authenticate' })
   }
 })
 

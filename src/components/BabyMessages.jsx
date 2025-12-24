@@ -36,13 +36,22 @@ function BabyMessages() {
   const [clearing, setClearing] = useState(false)
   const [hasMessage, setHasMessage] = useState(false)
   const [userMessage, setUserMessage] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const submitRef = useRef(false)
   const lastSubmitTimeRef = useRef(0)
 
   useEffect(() => {
     fetchMessages()
     checkUserMessage()
+    checkAdminStatus()
   }, [])
+
+  const checkAdminStatus = () => {
+    const adminKey = localStorage.getItem('babyRegistryAdminKey')
+    if (adminKey) {
+      setIsAdmin(true)
+    }
+  }
 
   const fetchMessages = async () => {
     try {
@@ -118,12 +127,18 @@ function BabyMessages() {
   }
 
   const handleDeleteMessage = async (messageId) => {
+    if (!isAdmin) {
+      alert('Admin access required to delete messages.')
+      return
+    }
+
     if (!window.confirm('Are you sure you want to delete this message?')) {
       return
     }
 
     try {
-      const response = await fetch(`${API_BASE}/api/messages/${messageId}`, {
+      const adminKey = localStorage.getItem('babyRegistryAdminKey')
+      const response = await fetch(`${API_BASE}/api/messages/${messageId}?adminKey=${encodeURIComponent(adminKey)}`, {
         method: 'DELETE',
       })
 
@@ -133,11 +148,44 @@ function BabyMessages() {
         await checkUserMessage()
       } else {
         const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
-        alert(errorData.error || 'Failed to delete message. Please try again.')
+        if (response.status === 403) {
+          alert('Unauthorized: Admin access required')
+          setIsAdmin(false)
+          localStorage.removeItem('babyRegistryAdminKey')
+        } else {
+          alert(errorData.error || 'Failed to delete message. Please try again.')
+        }
       }
     } catch (error) {
       console.error('Error deleting message:', error)
       alert('Failed to delete message. Please check your connection and try again.')
+    }
+  }
+
+  const handleAdminLogin = async () => {
+    const password = prompt('Enter admin password:')
+    if (!password) return
+
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        localStorage.setItem('babyRegistryAdminKey', data.adminKey)
+        setIsAdmin(true)
+        alert('Admin access granted')
+      } else {
+        alert(data.error || 'Invalid password')
+      }
+    } catch (error) {
+      console.error('Error logging in:', error)
+      alert('Failed to authenticate. Please try again.')
     }
   }
 
@@ -265,6 +313,23 @@ function BabyMessages() {
           {t.messagesSubtitle}
         </motion.p>
 
+        {!isAdmin && (
+          <motion.div
+            className="admin-login-container"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.25 }}
+          >
+            <button
+              className="admin-login-button"
+              onClick={handleAdminLogin}
+            >
+              Admin Login
+            </button>
+          </motion.div>
+        )}
+
         {!hasMessage ? (
           <motion.form 
             className="message-form"
@@ -362,14 +427,16 @@ function BabyMessages() {
                               year: 'numeric'
                             })}
                           </span>
-                          <button
-                            className="delete-message-button"
-                            onClick={() => handleDeleteMessage(msg.id)}
-                            title="Delete message"
-                            aria-label="Delete message"
-                          >
-                            ×
-                          </button>
+                          {isAdmin && (
+                            <button
+                              className="delete-message-button"
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              title="Delete message"
+                              aria-label="Delete message"
+                            >
+                              ×
+                            </button>
+                          )}
                         </div>
                       </div>
                       <p className="message-text">{msg.message}</p>
@@ -390,14 +457,16 @@ function BabyMessages() {
                               year: 'numeric'
                             })}
                           </span>
-                          <button
-                            className="delete-message-button"
-                            onClick={() => handleDeleteMessage(msg.id)}
-                            title="Delete message"
-                            aria-label="Delete message"
-                          >
-                            ×
-                          </button>
+                          {isAdmin && (
+                            <button
+                              className="delete-message-button"
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              title="Delete message"
+                              aria-label="Delete message"
+                            >
+                              ×
+                            </button>
+                          )}
                         </div>
                       </div>
                       <p className="message-text">{msg.message}</p>

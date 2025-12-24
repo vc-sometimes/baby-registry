@@ -524,18 +524,30 @@ app.delete('/api/messages/:id', (req, res) => {
 app.post('/api/admin/login', (req, res) => {
   try {
     const { email, password } = req.body
-    const expectedEmail = process.env.ADMIN_EMAIL || 'stephenvcb@gmail.com'
-    const expectedPassword = process.env.ADMIN_PASSWORD || 'PonzuDrop614!'
+    
+    // Admin credentials - can be overridden by env vars
+    const adminCredentials = [
+      {
+        email: process.env.ADMIN_EMAIL_1 || 'stephenvcb@gmail.com',
+        password: process.env.ADMIN_PASSWORD_1 || 'PonzuDrop614!'
+      },
+      {
+        email: process.env.ADMIN_EMAIL_2 || 'brisa',
+        password: process.env.ADMIN_PASSWORD_2 || 'buba2026'
+      }
+    ]
     
     console.log('[ADMIN LOGIN] Attempt:', { 
       receivedEmail: email, 
-      receivedPassword: password ? '***' : 'missing',
-      expectedEmail,
-      emailMatch: email === expectedEmail,
-      passwordMatch: password === expectedPassword
+      receivedPassword: password ? '***' : 'missing'
     })
     
-    if (email === expectedEmail && password === expectedPassword) {
+    // Check if credentials match any admin account
+    const isValid = adminCredentials.some(cred => 
+      email === cred.email && password === cred.password
+    )
+    
+    if (isValid) {
       const adminKey = process.env.ADMIN_KEY || 'buba-admin-2024'
       console.log('[ADMIN LOGIN] Success')
       res.json({

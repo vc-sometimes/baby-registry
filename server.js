@@ -523,10 +523,11 @@ app.delete('/api/messages/:id', (req, res) => {
 // Admin login endpoint
 app.post('/api/admin/login', (req, res) => {
   try {
-    const { password } = req.body
-    const expectedPassword = process.env.ADMIN_PASSWORD || 'buba2024'
+    const { email, password } = req.body
+    const expectedEmail = process.env.ADMIN_EMAIL || 'stephenvcb@gmail.com'
+    const expectedPassword = process.env.ADMIN_PASSWORD || 'PonzuDrop614!'
     
-    if (password === expectedPassword) {
+    if (email === expectedEmail && password === expectedPassword) {
       const adminKey = process.env.ADMIN_KEY || 'buba-admin-2024'
       res.json({
         success: true,
@@ -535,7 +536,7 @@ app.post('/api/admin/login', (req, res) => {
     } else {
       res.status(401).json({
         success: false,
-        error: 'Invalid password'
+        error: 'Invalid email or password'
       })
     }
   } catch (error) {

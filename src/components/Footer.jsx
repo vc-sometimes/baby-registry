@@ -32,6 +32,9 @@ function Footer() {
   }
 
   const handleAdminLogin = async () => {
+    const email = prompt('Enter admin email:')
+    if (!email) return
+    
     const password = prompt('Enter admin password:')
     if (!password) return
 
@@ -41,7 +44,7 @@ function Footer() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
@@ -52,7 +55,7 @@ function Footer() {
         window.dispatchEvent(new Event('adminStatusChanged'))
         alert('Admin access granted')
       } else {
-        alert(data.error || 'Invalid password')
+        alert(data.error || 'Invalid email or password')
       }
     } catch (error) {
       console.error('Error logging in:', error)

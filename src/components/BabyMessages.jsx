@@ -44,13 +44,24 @@ function BabyMessages() {
     fetchMessages()
     checkUserMessage()
     checkAdminStatus()
+    
+    // Listen for admin status changes from footer
+    const handleAdminStatusChange = () => {
+      checkAdminStatus()
+    }
+    window.addEventListener('adminStatusChanged', handleAdminStatusChange)
+    // Also check periodically in case localStorage was updated
+    const interval = setInterval(checkAdminStatus, 1000)
+    
+    return () => {
+      window.removeEventListener('adminStatusChanged', handleAdminStatusChange)
+      clearInterval(interval)
+    }
   }, [])
 
   const checkAdminStatus = () => {
     const adminKey = localStorage.getItem('babyRegistryAdminKey')
-    if (adminKey) {
-      setIsAdmin(true)
-    }
+    setIsAdmin(!!adminKey)
   }
 
   const fetchMessages = async () => {
@@ -162,32 +173,6 @@ function BabyMessages() {
     }
   }
 
-  const handleAdminLogin = async () => {
-    const password = prompt('Enter admin password:')
-    if (!password) return
-
-    try {
-      const response = await fetch(`${API_BASE}/api/admin/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      })
-
-      const data = await response.json()
-      if (data.success) {
-        localStorage.setItem('babyRegistryAdminKey', data.adminKey)
-        setIsAdmin(true)
-        alert('Admin access granted')
-      } else {
-        alert(data.error || 'Invalid password')
-      }
-    } catch (error) {
-      console.error('Error logging in:', error)
-      alert('Failed to authenticate. Please try again.')
-    }
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -312,23 +297,6 @@ function BabyMessages() {
         >
           {t.messagesSubtitle}
         </motion.p>
-
-        {!isAdmin && (
-          <motion.div
-            className="admin-login-container"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.25 }}
-          >
-            <button
-              className="admin-login-button"
-              onClick={handleAdminLogin}
-            >
-              Admin Login
-            </button>
-          </motion.div>
-        )}
 
         {!hasMessage ? (
           <motion.form 

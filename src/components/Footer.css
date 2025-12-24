@@ -68,6 +68,33 @@
   cursor: default;
 }
 
+.footer-admin {
+  margin-top: 24px;
+}
+
+.admin-login-button,
+.admin-logout-button {
+  padding: 6px 12px;
+  background: transparent;
+  color: rgba(250, 248, 245, 0.6);
+  border: 1px solid rgba(250, 248, 245, 0.3);
+  border-radius: 2px;
+  font-family: 'Crimson Text', serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  opacity: 0.7;
+}
+
+.admin-login-button:hover,
+.admin-logout-button:hover {
+  background: rgba(250, 248, 245, 0.1);
+  color: rgba(250, 248, 245, 0.9);
+  border-color: rgba(250, 248, 245, 0.5);
+  opacity: 1;
+}
+
 @media (max-width: 768px) {
   .footer {
     padding: 50px 24px;

@@ -1,7 +1,72 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import './Footer.css'
 
+// Normalize API base URL
+const getApiBase = () => {
+  const base = import.meta.env.VITE_API_URL || ''
+  return base.replace(/\/+$/, '')
+}
+const API_BASE = getApiBase()
+
 function Footer() {
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    checkAdminStatus()
+    // Listen for admin status changes from other components
+    const handleStorageChange = () => {
+      checkAdminStatus()
+    }
+    window.addEventListener('storage', handleStorageChange)
+    // Also check periodically in case localStorage was updated in same window
+    const interval = setInterval(checkAdminStatus, 1000)
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [])
+
+  const checkAdminStatus = () => {
+    const adminKey = localStorage.getItem('babyRegistryAdminKey')
+    setIsAdmin(!!adminKey)
+  }
+
+  const handleAdminLogin = async () => {
+    const password = prompt('Enter admin password:')
+    if (!password) return
+
+    try {
+      const response = await fetch(`${API_BASE}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const data = await response.json()
+      if (data.success) {
+        localStorage.setItem('babyRegistryAdminKey', data.adminKey)
+        setIsAdmin(true)
+        // Dispatch custom event to notify other components
+        window.dispatchEvent(new Event('adminStatusChanged'))
+        alert('Admin access granted')
+      } else {
+        alert(data.error || 'Invalid password')
+      }
+    } catch (error) {
+      console.error('Error logging in:', error)
+      alert('Failed to authenticate. Please try again.')
+    }
+  }
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('babyRegistryAdminKey')
+    setIsAdmin(false)
+    window.dispatchEvent(new Event('adminStatusChanged'))
+    alert('Logged out')
+  }
+
   return (
     <footer className="footer">
       <div className="footer-content">
@@ -18,6 +83,17 @@ function Footer() {
         <p className="footer-konami">
           ↑ ↑ ↓ ↓ ← → ← → B A
         </p>
+        <div className="footer-admin">
+          {isAdmin ? (
+            <button className="admin-logout-button" onClick={handleAdminLogout}>
+              Admin Logout
+            </button>
+          ) : (
+            <button className="admin-login-button" onClick={handleAdminLogin}>
+              Admin Login
+            </button>
+          )}
+        </div>
       </div>
     </footer>
   )

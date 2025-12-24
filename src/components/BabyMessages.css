@@ -308,30 +308,6 @@
   text-align: center;
 }
 
-.admin-login-container {
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.admin-login-button {
-  padding: 8px 16px;
-  background: transparent;
-  color: #8B6F47;
-  border: 1px solid #8B6F47;
-  border-radius: 2px;
-  font-family: 'Crimson Text', serif;
-  font-size: clamp(12px, 1.4vw, 14px);
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  opacity: 0.6;
-}
-
-.admin-login-button:hover {
-  background: #8B6F47;
-  color: white;
-  opacity: 1;
-}
 
 @media (max-width: 768px) {
   .baby-messages {

@@ -39,7 +39,10 @@ function Footer() {
     if (!password) return
 
     try {
-      const response = await fetch(`${API_BASE}/api/admin/login`, {
+      const url = `${API_BASE}/api/admin/login`
+      console.log('Attempting admin login to:', url)
+      
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,7 +50,18 @@ function Footer() {
         body: JSON.stringify({ email, password }),
       })
 
+      console.log('Login response status:', response.status)
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+        console.error('Login error:', errorData)
+        alert(errorData.error || `Failed to authenticate (${response.status})`)
+        return
+      }
+
       const data = await response.json()
+      console.log('Login response data:', data)
+      
       if (data.success) {
         localStorage.setItem('babyRegistryAdminKey', data.adminKey)
         setIsAdmin(true)
@@ -59,7 +73,7 @@ function Footer() {
       }
     } catch (error) {
       console.error('Error logging in:', error)
-      alert('Failed to authenticate. Please try again.')
+      alert(`Failed to authenticate: ${error.message}. Please check your connection and make sure the server is running.`)
     }
   }
 

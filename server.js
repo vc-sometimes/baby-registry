@@ -527,20 +527,30 @@ app.post('/api/admin/login', (req, res) => {
     const expectedEmail = process.env.ADMIN_EMAIL || 'stephenvcb@gmail.com'
     const expectedPassword = process.env.ADMIN_PASSWORD || 'PonzuDrop614!'
     
+    console.log('[ADMIN LOGIN] Attempt:', { 
+      receivedEmail: email, 
+      receivedPassword: password ? '***' : 'missing',
+      expectedEmail,
+      emailMatch: email === expectedEmail,
+      passwordMatch: password === expectedPassword
+    })
+    
     if (email === expectedEmail && password === expectedPassword) {
       const adminKey = process.env.ADMIN_KEY || 'buba-admin-2024'
+      console.log('[ADMIN LOGIN] Success')
       res.json({
         success: true,
         adminKey: adminKey
       })
     } else {
+      console.log('[ADMIN LOGIN] Failed - invalid credentials')
       res.status(401).json({
         success: false,
         error: 'Invalid email or password'
       })
     }
   } catch (error) {
-    console.error('Error in admin login:', error)
+    console.error('[ADMIN LOGIN] Error:', error)
     res.status(500).json({ error: 'Failed to authenticate' })
   }
 })

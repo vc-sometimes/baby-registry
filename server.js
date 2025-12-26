@@ -32,7 +32,19 @@ app.set('trust proxy', true)
 
 // Helper function to check if database is available
 const useDatabase = () => {
-  return !!process.env.DATABASE_URL && dbInitialized
+  const hasUrl = !!process.env.DATABASE_URL
+  const hasPool = !!pool
+  const initialized = dbInitialized
+  
+  if (!hasUrl) {
+    console.log('[DATABASE CHECK] DATABASE_URL not set - add Postgres database in Railway')
+  } else if (!hasPool) {
+    console.log('[DATABASE CHECK] Connection pool not created')
+  } else if (!initialized) {
+    console.log('[DATABASE CHECK] Database not initialized yet')
+  }
+  
+  return hasUrl && hasPool && initialized
 }
 
 // Get vote counts

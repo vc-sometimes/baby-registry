@@ -6,16 +6,20 @@ let pool = null
 // Create connection pool only if DATABASE_URL is set
 if (process.env.DATABASE_URL) {
   try {
+    console.log('[DATABASE] DATABASE_URL found:', process.env.DATABASE_URL.substring(0, 20) + '...')
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL?.includes('railway') || process.env.DATABASE_URL?.includes('postgres') ? { rejectUnauthorized: false } : false
+      ssl: process.env.DATABASE_URL?.includes('railway') || process.env.DATABASE_URL?.includes('postgres') ? { rejectUnauthorized: false } : false,
+      connectionTimeoutMillis: 5000,
+      idleTimeoutMillis: 30000
     })
-    console.log('[DATABASE] Connection pool created')
+    console.log('[DATABASE] Connection pool created successfully')
   } catch (error) {
-    console.error('[DATABASE] Error creating connection pool:', error)
+    console.error('[DATABASE] Error creating connection pool:', error.message)
   }
 } else {
-  console.log('[DATABASE] DATABASE_URL not set, database features disabled')
+  console.log('[DATABASE] DATABASE_URL not set')
+  console.log('[DATABASE] Available env vars:', Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('PG')).join(', '))
 }
 
 // Initialize database tables

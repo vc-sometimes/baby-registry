@@ -574,7 +574,15 @@ app.delete('/api/votes/all', async (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    database: {
+      configured: !!process.env.DATABASE_URL,
+      connected: !!pool,
+      initialized: dbInitialized
+    }
+  })
 })
 
 // Root endpoint

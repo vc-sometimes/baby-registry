@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
-import pool, { initDatabase } from './db.js'
+import dbPool, { initDatabase } from './db.js'
+
+const pool = dbPool
 
 const app = express()
 const PORT = process.env.PORT || 3001

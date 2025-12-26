@@ -1,15 +1,35 @@
 import pg from 'pg'
 const { Pool } = pg
 
-// Create connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL?.includes('railway') ? { rejectUnauthorized: false } : false
-})
+let pool = null
+
+// Create connection pool only if DATABASE_URL is set
+if (process.env.DATABASE_URL) {
+  try {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.DATABASE_URL?.includes('railway') || process.env.DATABASE_URL?.includes('postgres') ? { rejectUnauthorized: false } : false
+    })
+    console.log('[DATABASE] Connection pool created')
+  } catch (error) {
+    console.error('[DATABASE] Error creating connection pool:', error)
+  }
+} else {
+  console.log('[DATABASE] DATABASE_URL not set, database features disabled')
+}
 
 // Initialize database tables
 export async function initDatabase() {
+  if (!pool) {
+    console.log('[DATABASE] No database connection available, skipping initialization')
+    return false
+  }
+
   try {
+    // Test connection
+    await pool.query('SELECT NOW()')
+    console.log('[DATABASE] Connection test successful')
+
     // Create votes table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS votes (
@@ -42,9 +62,11 @@ export async function initDatabase() {
     `)
 
     console.log('[DATABASE] Tables initialized successfully')
+    return true
   } catch (error) {
-    console.error('[DATABASE] Error initializing database:', error)
-    throw error
+    console.error('[DATABASE] Error initializing database:', error.message)
+    console.error('[DATABASE] Make sure DATABASE_URL is set correctly in Railway')
+    return false
   }
 }
 

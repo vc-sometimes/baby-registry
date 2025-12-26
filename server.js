@@ -9,8 +9,15 @@ const __dirname = dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT || 3001
-const VOTES_FILE = join(__dirname, 'votes.json')
-const MESSAGES_FILE = join(__dirname, 'messages.json')
+
+// Use persistent volume path if available (Railway), otherwise use local directory
+const DATA_DIR = process.env.DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname
+const VOTES_FILE = join(DATA_DIR, 'votes.json')
+const MESSAGES_FILE = join(DATA_DIR, 'messages.json')
+
+console.log('[SERVER] Data directory:', DATA_DIR)
+console.log('[SERVER] Votes file:', VOTES_FILE)
+console.log('[SERVER] Messages file:', MESSAGES_FILE)
 
 // Middleware
 // CORS configuration - allows all origins in production

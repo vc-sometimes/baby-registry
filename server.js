@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
@@ -73,9 +73,15 @@ const readVotes = () => {
 
 const writeVotes = (data) => {
   try {
-    writeFileSync(VOTES_FILE, JSON.stringify(data, null, 2))
+    // Ensure directory exists
+    const dir = dirname(VOTES_FILE)
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true })
+    }
+    writeFileSync(VOTES_FILE, JSON.stringify(data, null, 2), 'utf8')
+    console.log('[VOTES] Written successfully to:', VOTES_FILE)
   } catch (error) {
-    console.error('Error writing votes:', error)
+    console.error('[VOTES] Error writing votes:', error)
     throw error
   }
 }
@@ -92,9 +98,15 @@ const readMessages = () => {
 
 const writeMessages = (data) => {
   try {
-    writeFileSync(MESSAGES_FILE, JSON.stringify(data, null, 2))
+    // Ensure directory exists
+    const dir = dirname(MESSAGES_FILE)
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true })
+    }
+    writeFileSync(MESSAGES_FILE, JSON.stringify(data, null, 2), 'utf8')
+    console.log('[MESSAGES] Written successfully to:', MESSAGES_FILE)
   } catch (error) {
-    console.error('Error writing messages:', error)
+    console.error('[MESSAGES] Error writing messages:', error)
     throw error
   }
 }

@@ -9,12 +9,17 @@ const PORT = process.env.PORT || 3001
 
 // Initialize database on startup
 let dbInitialized = false
-initDatabase().then(() => {
-  dbInitialized = true
-  console.log('[SERVER] Database initialized successfully')
+initDatabase().then((success) => {
+  dbInitialized = success
+  if (success) {
+    console.log('[SERVER] Database initialized successfully')
+  } else {
+    console.log('[SERVER] Database not available - votes and messages will not persist')
+    console.log('[SERVER] To fix: Add Postgres database in Railway dashboard')
+  }
 }).catch((error) => {
-  console.error('[SERVER] Database initialization failed:', error)
-  console.log('[SERVER] Falling back to file-based storage if DATABASE_URL not set')
+  console.error('[SERVER] Database initialization error:', error.message)
+  dbInitialized = false
 })
 
 // Middleware

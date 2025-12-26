@@ -22,12 +22,17 @@ if (process.env.DATABASE_URL) {
 export async function initDatabase() {
   if (!pool) {
     console.log('[DATABASE] No database connection available, skipping initialization')
+    console.log('[DATABASE] To enable database: Add Postgres database in Railway dashboard')
     return false
   }
 
   try {
-    // Test connection
-    await pool.query('SELECT NOW()')
+    // Test connection with timeout
+    const testQuery = pool.query('SELECT NOW()')
+    const timeout = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection timeout')), 5000)
+    )
+    await Promise.race([testQuery, timeout])
     console.log('[DATABASE] Connection test successful')
 
     // Create votes table
@@ -64,8 +69,12 @@ export async function initDatabase() {
     console.log('[DATABASE] Tables initialized successfully')
     return true
   } catch (error) {
-    console.error('[DATABASE] Error initializing database:', error.message)
+    console.error('[DATABASE] Error initializing database:')
+    console.error('[DATABASE] Error message:', error.message)
+    console.error('[DATABASE] Error code:', error.code)
+    console.error('[DATABASE] Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     console.error('[DATABASE] Make sure DATABASE_URL is set correctly in Railway')
+    console.error('[DATABASE] Check Railway Variables tab for DATABASE_URL')
     return false
   }
 }

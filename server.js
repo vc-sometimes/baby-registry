@@ -1,23 +1,19 @@
 import express from 'express'
 import cors from 'cors'
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import pool, { initDatabase } from './db.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
 
-// Use persistent volume path if available (Railway), otherwise use local directory
-const DATA_DIR = process.env.DATA_DIR || process.env.RAILWAY_VOLUME_MOUNT_PATH || __dirname
-const VOTES_FILE = join(DATA_DIR, 'votes.json')
-const MESSAGES_FILE = join(DATA_DIR, 'messages.json')
-
-console.log('[SERVER] Data directory:', DATA_DIR)
-console.log('[SERVER] Votes file:', VOTES_FILE)
-console.log('[SERVER] Messages file:', MESSAGES_FILE)
+// Initialize database on startup
+let dbInitialized = false
+initDatabase().then(() => {
+  dbInitialized = true
+  console.log('[SERVER] Database initialized successfully')
+}).catch((error) => {
+  console.error('[SERVER] Database initialization failed:', error)
+  console.log('[SERVER] Falling back to file-based storage if DATABASE_URL not set')
+})
 
 // Middleware
 // CORS configuration - allows all origins in production
@@ -32,99 +28,31 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.set('trust proxy', true)
 
-// Initialize votes file if it doesn't exist
-const initVotesFile = () => {
-  if (!existsSync(VOTES_FILE)) {
-    writeFileSync(VOTES_FILE, JSON.stringify({ votes: [] }, null, 2))
-  }
-}
-
-// Initialize messages file if it doesn't exist
-const initMessagesFile = () => {
-  if (!existsSync(MESSAGES_FILE)) {
-    writeFileSync(MESSAGES_FILE, JSON.stringify({ messages: [] }, null, 2))
-  }
-}
-
-initVotesFile()
-initMessagesFile()
-
-// Helper functions
-const readVotes = () => {
-  try {
-    if (!existsSync(VOTES_FILE)) {
-      return { votes: [] }
-    }
-    const data = readFileSync(VOTES_FILE, 'utf8')
-    const parsed = JSON.parse(data)
-    // Ensure votes is always an array
-    if (!parsed || typeof parsed !== 'object') {
-      return { votes: [] }
-    }
-    if (!Array.isArray(parsed.votes)) {
-      return { votes: [] }
-    }
-    return parsed
-  } catch (error) {
-    console.error('Error reading votes:', error)
-    return { votes: [] }
-  }
-}
-
-const writeVotes = (data) => {
-  try {
-    // Ensure directory exists
-    const dir = dirname(VOTES_FILE)
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true })
-    }
-    writeFileSync(VOTES_FILE, JSON.stringify(data, null, 2), 'utf8')
-    console.log('[VOTES] Written successfully to:', VOTES_FILE)
-  } catch (error) {
-    console.error('[VOTES] Error writing votes:', error)
-    throw error
-  }
-}
-
-const readMessages = () => {
-  try {
-    const data = readFileSync(MESSAGES_FILE, 'utf8')
-    return JSON.parse(data)
-  } catch (error) {
-    console.error('Error reading messages:', error)
-    return { messages: [] }
-  }
-}
-
-const writeMessages = (data) => {
-  try {
-    // Ensure directory exists
-    const dir = dirname(MESSAGES_FILE)
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true })
-    }
-    writeFileSync(MESSAGES_FILE, JSON.stringify(data, null, 2), 'utf8')
-    console.log('[MESSAGES] Written successfully to:', MESSAGES_FILE)
-  } catch (error) {
-    console.error('[MESSAGES] Error writing messages:', error)
-    throw error
-  }
+// Helper function to check if database is available
+const useDatabase = () => {
+  return !!process.env.DATABASE_URL && dbInitialized
 }
 
 // Get vote counts
-app.get('/api/votes', (req, res) => {
+app.get('/api/votes', async (req, res) => {
   try {
-    const data = readVotes()
-    const votes = data.votes || []
-    
-    const boyVotes = votes.filter(v => v.voteType === 'boy').length
-    const girlVotes = votes.filter(v => v.voteType === 'girl').length
-    
-    res.json({
-      boy: boyVotes,
-      girl: girlVotes,
-      total: boyVotes + girlVotes
-    })
+    if (useDatabase()) {
+      const result = await pool.query(`
+        SELECT 
+          COUNT(*) FILTER (WHERE vote_type = 'boy') as boy,
+          COUNT(*) FILTER (WHERE vote_type = 'girl') as girl,
+          COUNT(*) as total
+        FROM votes
+      `)
+      const { boy, girl, total } = result.rows[0]
+      res.json({
+        boy: parseInt(boy) || 0,
+        girl: parseInt(girl) || 0,
+        total: parseInt(total) || 0
+      })
+    } else {
+      res.json({ boy: 0, girl: 0, total: 0 })
+    }
   } catch (error) {
     console.error('Error fetching votes:', error)
     res.status(500).json({ error: 'Failed to fetch votes' })
@@ -132,18 +60,18 @@ app.get('/api/votes', (req, res) => {
 })
 
 // Get all votes (for displaying individual votes)
-app.get('/api/votes/all', (req, res) => {
+app.get('/api/votes/all', async (req, res) => {
   try {
-    const data = readVotes()
-    const votes = (data.votes || []).map(vote => ({
-      voteType: vote.voteType,
-      createdAt: vote.createdAt,
-      // Don't expose IP addresses for privacy
-    })).sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt)
-    })
-    
-    res.json({ votes })
+    if (useDatabase()) {
+      const result = await pool.query(`
+        SELECT vote_type as "voteType", created_at as "createdAt"
+        FROM votes
+        ORDER BY created_at DESC
+      `)
+      res.json({ votes: result.rows })
+    } else {
+      res.json({ votes: [] })
+    }
   } catch (error) {
     console.error('Error fetching all votes:', error)
     res.status(500).json({ error: 'Failed to fetch votes' })
@@ -151,7 +79,7 @@ app.get('/api/votes/all', (req, res) => {
 })
 
 // Submit a vote
-app.post('/api/votes', (req, res) => {
+app.post('/api/votes', async (req, res) => {
   try {
     const { voteType, browserId } = req.body
     
@@ -163,60 +91,64 @@ app.post('/api/votes', (req, res) => {
       return res.status(400).json({ error: 'Browser ID is required' })
     }
 
-    // Get user IP (for reference, but browserId is primary identifier)
-    const userIp = getUserIp(req)
-
-    // Read current votes
-    const data = readVotes()
-    const votes = Array.isArray(data.votes) ? [...data.votes] : [] // Create a copy to ensure we're working with an array
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available. Please set up Postgres database.' })
+    }
 
     console.log(`[VOTE] Received vote: ${voteType} from browserId: ${browserId}`)
-    console.log(`[VOTE] Current total votes before: ${votes.length}`)
 
-    // Check if this browser has already voted (using browserId as primary identifier)
-    const existingVoteIndex = votes.findIndex(v => v.browserId === browserId)
-    if (existingVoteIndex !== -1) {
-      const existingVote = votes[existingVoteIndex]
-      console.log(`[VOTE] Browser ${browserId} already voted: ${existingVote.voteType}`)
+    // Check if this browser has already voted
+    const existingVote = await pool.query(
+      'SELECT vote_type FROM votes WHERE browser_id = $1',
+      [browserId]
+    )
+
+    if (existingVote.rows.length > 0) {
+      const existing = existingVote.rows[0]
+      console.log(`[VOTE] Browser ${browserId} already voted: ${existing.vote_type}`)
+      
+      // Get current counts
+      const counts = await pool.query(`
+        SELECT 
+          COUNT(*) FILTER (WHERE vote_type = 'boy') as boy,
+          COUNT(*) FILTER (WHERE vote_type = 'girl') as girl,
+          COUNT(*) as total
+        FROM votes
+      `)
+      const { boy, girl, total } = counts.rows[0]
+      
       return res.status(400).json({ 
         error: 'You have already voted',
-        boy: votes.filter(v => v.voteType === 'boy').length,
-        girl: votes.filter(v => v.voteType === 'girl').length,
-        total: votes.length,
-        voteType: existingVote.voteType
+        boy: parseInt(boy) || 0,
+        girl: parseInt(girl) || 0,
+        total: parseInt(total) || 0,
+        voteType: existing.vote_type
       })
     }
 
-    // Create new vote object with unique ID
-    const newVote = {
-      id: `vote_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`, // Unique vote ID
-      voteType,
-      browserId,
-      userIp, // Store IP for reference
-      createdAt: new Date().toISOString()
-    }
+    // Insert new vote
+    await pool.query(
+      'INSERT INTO votes (browser_id, vote_type) VALUES ($1, $2)',
+      [browserId, voteType]
+    )
 
-    // Add new vote to the array
-    votes.push(newVote)
-    console.log(`[VOTE] Added new vote. Total votes after: ${votes.length}`)
-
-    // Write votes back to file
-    writeVotes({ votes })
-
-    // Verify the write by reading back
-    const verifyData = readVotes()
-    const verifyVotes = verifyData.votes || []
-    console.log(`[VOTE] Verified write. Votes in file: ${verifyVotes.length}`)
+    console.log(`[VOTE] Added new vote`)
 
     // Get updated counts
-    const boyVotes = verifyVotes.filter(v => v.voteType === 'boy').length
-    const girlVotes = verifyVotes.filter(v => v.voteType === 'girl').length
+    const counts = await pool.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE vote_type = 'boy') as boy,
+        COUNT(*) FILTER (WHERE vote_type = 'girl') as girl,
+        COUNT(*) as total
+      FROM votes
+    `)
+    const { boy, girl, total } = counts.rows[0]
 
     res.json({
       success: true,
-      boy: boyVotes,
-      girl: girlVotes,
-      total: verifyVotes.length
+      boy: parseInt(boy) || 0,
+      girl: parseInt(girl) || 0,
+      total: parseInt(total) || 0
     })
   } catch (error) {
     console.error('Error submitting vote:', error)
@@ -225,7 +157,7 @@ app.post('/api/votes', (req, res) => {
 })
 
 // Check if user has voted
-app.get('/api/votes/check', (req, res) => {
+app.get('/api/votes/check', async (req, res) => {
   try {
     const browserId = req.query.browserId
     
@@ -233,13 +165,19 @@ app.get('/api/votes/check', (req, res) => {
       return res.status(400).json({ error: 'Browser ID is required' })
     }
 
-    const data = readVotes()
-    const votes = data.votes || []
-    const vote = votes.find(v => v.browserId === browserId)
+    if (!useDatabase()) {
+      return res.json({ hasVoted: false, voteType: null })
+    }
+
+    const result = await pool.query(
+      'SELECT vote_type FROM votes WHERE browser_id = $1',
+      [browserId]
+    )
     
+    const vote = result.rows[0]
     res.json({
       hasVoted: !!vote,
-      voteType: vote?.voteType || null
+      voteType: vote?.vote_type || null
     })
   } catch (error) {
     console.error('Error checking vote:', error)
@@ -261,7 +199,7 @@ const getUserIp = (req) => {
 }
 
 // Delete user's own vote
-app.delete('/api/votes', (req, res) => {
+app.delete('/api/votes', async (req, res) => {
   try {
     const browserId = req.query.browserId
     
@@ -269,33 +207,37 @@ app.delete('/api/votes', (req, res) => {
       return res.status(400).json({ error: 'Browser ID is required' })
     }
 
-    const data = readVotes()
-    const votes = data.votes || []
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available' })
+    }
+
+    const result = await pool.query(
+      'DELETE FROM votes WHERE browser_id = $1 RETURNING *',
+      [browserId]
+    )
     
-    // Find the user's vote by browserId
-    const userVoteIndex = votes.findIndex(v => v.browserId === browserId)
-    
-    if (userVoteIndex === -1) {
-      // User hasn't voted
+    if (result.rows.length === 0) {
       return res.status(404).json({ 
         error: 'No vote found to delete'
       })
     }
     
-    // Remove the user's vote
-    votes.splice(userVoteIndex, 1)
-    writeVotes({ votes })
-    
     // Get updated counts
-    const boyVotes = votes.filter(v => v.voteType === 'boy').length
-    const girlVotes = votes.filter(v => v.voteType === 'girl').length
+    const counts = await pool.query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE vote_type = 'boy') as boy,
+        COUNT(*) FILTER (WHERE vote_type = 'girl') as girl,
+        COUNT(*) as total
+      FROM votes
+    `)
+    const { boy, girl, total } = counts.rows[0]
     
     res.json({
       success: true,
       message: 'Your vote has been cleared',
-      boy: boyVotes,
-      girl: girlVotes,
-      total: votes.length
+      boy: parseInt(boy) || 0,
+      girl: parseInt(girl) || 0,
+      total: parseInt(total) || 0
     })
   } catch (error) {
     console.error('Error clearing vote:', error)
@@ -304,13 +246,24 @@ app.delete('/api/votes', (req, res) => {
 })
 
 // Get all messages
-app.get('/api/messages', (req, res) => {
+app.get('/api/messages', async (req, res) => {
   try {
-    const data = readMessages()
-    const messages = (data.messages || []).sort((a, b) => {
-      return new Date(b.timestamp) - new Date(a.timestamp)
-    })
-    res.json({ messages })
+    if (useDatabase()) {
+      const result = await pool.query(`
+        SELECT 
+          id,
+          browser_id as "browserId",
+          name,
+          message,
+          submission_id as "submissionId",
+          created_at as "timestamp"
+        FROM messages
+        ORDER BY created_at DESC
+      `)
+      res.json({ messages: result.rows })
+    } else {
+      res.json({ messages: [] })
+    }
   } catch (error) {
     console.error('Error fetching messages:', error)
     res.status(500).json({ error: 'Failed to fetch messages' })
@@ -318,7 +271,7 @@ app.get('/api/messages', (req, res) => {
 })
 
 // Submit a message
-app.post('/api/messages', (req, res) => {
+app.post('/api/messages', async (req, res) => {
   try {
     const { name, message, browserId, submissionId } = req.body
     
@@ -334,84 +287,89 @@ app.post('/api/messages', (req, res) => {
       return res.status(400).json({ error: 'Name and message cannot be empty' })
     }
 
-    const data = readMessages()
-    const messages = Array.isArray(data.messages) ? [...data.messages] : []
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available. Please set up Postgres database.' })
+    }
 
     const nameTrimmed = name.trim()
     const messageTrimmed = message.trim()
-    const now = Date.now()
-    const timestamp = new Date().toISOString()
 
     // Check if this browser has already submitted a message
-    const existingMessageIndex = messages.findIndex(msg => msg.browserId === browserId)
-    if (existingMessageIndex !== -1) {
+    const existingMessage = await pool.query(
+      'SELECT * FROM messages WHERE browser_id = $1',
+      [browserId]
+    )
+
+    if (existingMessage.rows.length > 0) {
       // User already has a message, update it instead of creating duplicate
-      const existingMessage = messages[existingMessageIndex]
+      const existing = existingMessage.rows[0]
       console.log(`[MESSAGES] Browser ${browserId} already has a message, updating it`)
       
-      messages[existingMessageIndex] = {
-        ...existingMessage,
-        name: nameTrimmed,
-        message: messageTrimmed,
-        timestamp: timestamp,
-        submissionId: submissionId || existingMessage.submissionId
-      }
-      
-      writeMessages({ messages })
+      const updated = await pool.query(`
+        UPDATE messages 
+        SET name = $1, message = $2, submission_id = COALESCE($3, submission_id), created_at = CURRENT_TIMESTAMP
+        WHERE browser_id = $4
+        RETURNING id, browser_id as "browserId", name, message, submission_id as "submissionId", created_at as "timestamp"
+      `, [nameTrimmed, messageTrimmed, submissionId || null, browserId])
       
       return res.json({
         success: true,
-        message: messages[existingMessageIndex]
+        message: updated.rows[0]
       })
     }
 
     // Check for duplicate messages within the last 10 seconds (same name and message)
-    const recentDuplicate = messages.find(msg => {
-      const msgTime = new Date(msg.timestamp).getTime()
-      const timeDiff = now - msgTime
-      return (
-        msg.name === nameTrimmed &&
-        msg.message === messageTrimmed &&
-        timeDiff < 10000 // 10 seconds
-      )
-    })
+    const recentDuplicate = await pool.query(`
+      SELECT * FROM messages 
+      WHERE name = $1 AND message = $2 
+      AND created_at > NOW() - INTERVAL '10 seconds'
+      LIMIT 1
+    `, [nameTrimmed, messageTrimmed])
 
-    if (recentDuplicate) {
-      console.log(`[MESSAGES] Duplicate message detected from ${nameTrimmed} within 10 seconds [Submission ID: ${submissionId || 'none'}]`)
+    if (recentDuplicate.rows.length > 0) {
+      console.log(`[MESSAGES] Duplicate message detected from ${nameTrimmed} within 10 seconds`)
       return res.status(400).json({ 
         error: 'Duplicate message detected. Please wait a moment before submitting again.',
-        message: recentDuplicate
+        message: {
+          id: recentDuplicate.rows[0].id,
+          name: recentDuplicate.rows[0].name,
+          message: recentDuplicate.rows[0].message,
+          timestamp: recentDuplicate.rows[0].created_at
+        }
       })
     }
 
     // Also check if we just processed this exact submission ID (in case of network retries)
     if (submissionId) {
-      const existingBySubmissionId = messages.find(msg => msg.submissionId === submissionId)
-      if (existingBySubmissionId) {
+      const existingBySubmissionId = await pool.query(
+        'SELECT * FROM messages WHERE submission_id = $1',
+        [submissionId]
+      )
+      if (existingBySubmissionId.rows.length > 0) {
         console.log(`[MESSAGES] Message with submission ID ${submissionId} already exists`)
         return res.json({
           success: true,
-          message: existingBySubmissionId
+          message: {
+            id: existingBySubmissionId.rows[0].id,
+            browserId: existingBySubmissionId.rows[0].browser_id,
+            name: existingBySubmissionId.rows[0].name,
+            message: existingBySubmissionId.rows[0].message,
+            timestamp: existingBySubmissionId.rows[0].created_at,
+            submissionId: existingBySubmissionId.rows[0].submission_id
+          }
         })
       }
     }
 
-    const newMessage = {
-      id: `${now}_${Math.random().toString(36).substring(2, 15)}`, // More unique ID
-      name: nameTrimmed,
-      message: messageTrimmed,
-      browserId: browserId,
-      timestamp: timestamp,
-      submissionId: submissionId || null // Store submission ID if provided
-    }
+    // Insert new message
+    const result = await pool.query(`
+      INSERT INTO messages (browser_id, name, message, submission_id)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, browser_id as "browserId", name, message, submission_id as "submissionId", created_at as "timestamp"
+    `, [browserId, nameTrimmed, messageTrimmed, submissionId || null])
 
-    console.log(`[MESSAGES] Adding new message from ${nameTrimmed} [Browser ID: ${browserId}] [Submission ID: ${submissionId || 'none'}], total messages: ${messages.length + 1}`)
-    messages.push(newMessage)
-    writeMessages({ messages })
-
-    // Verify the write
-    const verifyData = readMessages()
-    console.log(`[MESSAGES] Verified write. Messages in file: ${verifyData.messages?.length || 0}`)
+    const newMessage = result.rows[0]
+    console.log(`[MESSAGES] Added new message from ${nameTrimmed} [Browser ID: ${browserId}]`)
 
     res.json({
       success: true,
@@ -424,7 +382,7 @@ app.post('/api/messages', (req, res) => {
 })
 
 // Check if user has a message
-app.get('/api/messages/check', (req, res) => {
+app.get('/api/messages/check', async (req, res) => {
   try {
     const browserId = req.query.browserId
     
@@ -432,13 +390,20 @@ app.get('/api/messages/check', (req, res) => {
       return res.status(400).json({ error: 'Browser ID is required' })
     }
 
-    const data = readMessages()
-    const messages = data.messages || []
-    const message = messages.find(msg => msg.browserId === browserId)
+    if (!useDatabase()) {
+      return res.json({ hasMessage: false, message: null })
+    }
+
+    const result = await pool.query(`
+      SELECT id, browser_id as "browserId", name, message, submission_id as "submissionId", created_at as "timestamp"
+      FROM messages 
+      WHERE browser_id = $1
+    `, [browserId])
     
+    const message = result.rows[0] || null
     res.json({
       hasMessage: !!message,
-      message: message || null
+      message: message
     })
   } catch (error) {
     console.error('Error checking message:', error)
@@ -447,14 +412,18 @@ app.get('/api/messages/check', (req, res) => {
 })
 
 // Delete user's own message
-app.delete('/api/messages', (req, res) => {
+app.delete('/api/messages', async (req, res) => {
   try {
     const browserId = req.query.browserId
     const clearAll = req.query.clearAll === 'true'
     
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available' })
+    }
+    
     // Admin endpoint to clear all messages
     if (clearAll) {
-      writeMessages({ messages: [] })
+      await pool.query('DELETE FROM messages')
       console.log('[MESSAGES] All messages cleared')
       return res.json({
         success: true,
@@ -466,22 +435,16 @@ app.delete('/api/messages', (req, res) => {
       return res.status(400).json({ error: 'Browser ID is required' })
     }
 
-    const data = readMessages()
-    const messages = data.messages || []
+    const result = await pool.query(
+      'DELETE FROM messages WHERE browser_id = $1 RETURNING *',
+      [browserId]
+    )
     
-    // Find the user's message by browserId
-    const userMessageIndex = messages.findIndex(msg => msg.browserId === browserId)
-    
-    if (userMessageIndex === -1) {
-      // User hasn't submitted a message
+    if (result.rows.length === 0) {
       return res.status(404).json({ 
         error: 'No message found to delete'
       })
     }
-    
-    // Remove the user's message
-    messages.splice(userMessageIndex, 1)
-    writeMessages({ messages })
     
     res.json({
       success: true,
@@ -494,7 +457,7 @@ app.delete('/api/messages', (req, res) => {
 })
 
 // Admin endpoint to delete any message by ID
-app.delete('/api/messages/:id', (req, res) => {
+app.delete('/api/messages/:id', async (req, res) => {
   try {
     const messageId = req.params.id
     const adminKey = req.headers['x-admin-key'] || req.query.adminKey
@@ -511,21 +474,20 @@ app.delete('/api/messages/:id', (req, res) => {
       return res.status(400).json({ error: 'Message ID is required' })
     }
 
-    const data = readMessages()
-    const messages = data.messages || []
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available' })
+    }
+
+    const result = await pool.query(
+      'DELETE FROM messages WHERE id = $1 RETURNING *',
+      [messageId]
+    )
     
-    // Find the message by ID
-    const messageIndex = messages.findIndex(msg => msg.id === messageId)
-    
-    if (messageIndex === -1) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ 
         error: 'Message not found'
       })
     }
-    
-    // Remove the message
-    messages.splice(messageIndex, 1)
-    writeMessages({ messages })
     
     console.log(`[MESSAGES] Message ${messageId} deleted by admin`)
     
@@ -587,9 +549,13 @@ app.post('/api/admin/login', (req, res) => {
 })
 
 // Admin endpoint to clear all votes
-app.delete('/api/votes/all', (req, res) => {
+app.delete('/api/votes/all', async (req, res) => {
   try {
-    writeVotes({ votes: [] })
+    if (!useDatabase()) {
+      return res.status(503).json({ error: 'Database not available' })
+    }
+    
+    await pool.query('DELETE FROM votes')
     console.log('[VOTES] All votes cleared')
     res.json({
       success: true,

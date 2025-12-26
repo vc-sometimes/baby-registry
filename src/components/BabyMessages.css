@@ -126,41 +126,38 @@
 
 .messages-carousel-container {
   margin-top: 64px;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: visible;
   position: relative;
   width: 100%;
   padding: 20px 0;
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 5%,
-    black 95%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 5%,
-    black 95%,
-    transparent 100%
-  );
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 111, 71, 0.3) transparent;
+}
+
+.messages-carousel-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.messages-carousel-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-carousel-container::-webkit-scrollbar-thumb {
+  background: rgba(139, 111, 71, 0.3);
+  border-radius: 2px;
+}
+
+.messages-carousel-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 111, 71, 0.5);
 }
 
 
 .messages-carousel {
   display: flex;
   gap: 24px;
-  animation: scroll 40s linear infinite;
   width: fit-content;
-}
-
-.messages-carousel.single-message {
-  animation: scroll-single 30s linear infinite;
-}
-
-.messages-carousel:hover {
-  animation-play-state: paused;
+  padding: 0 20px;
 }
 
 @keyframes scroll-single {
